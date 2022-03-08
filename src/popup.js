@@ -24,53 +24,26 @@ import './popup.css';
   function setupCounter(initialValue = 0) {
     document.getElementById('counter').innerHTML = initialValue;
 
-    document.getElementById('incrementBtn').addEventListener('click', () => {
-      updateCounter({
-        type: 'INCREMENT',
-      });
-    });
-
-    document.getElementById('decrementBtn').addEventListener('click', () => {
-      updateCounter({
-        type: 'DECREMENT',
-      });
+    document.getElementById('loadCookies').addEventListener('click', () => {
+      loadExpertCookies();
     });
   }
 
-  function updateCounter({ type }) {
-    counterStorage.get(count => {
-      let newCount;
 
-      if (type === 'INCREMENT') {
-        newCount = count + 1;
-      } else if (type === 'DECREMENT') {
-        newCount = count - 1;
-      } else {
-        newCount = count;
+
+  function loadExpertCookies() {
+    const expertCookieObj = [];
+    chrome.cookies.getAll({ domain: "expert.de" }, cookies => {
+      for (const cookie of cookies) {
+        if (cookie.httpOnly == true) {
+          let obj = {
+            name: cookie.name,
+            value: cookie.value,
+          }
+          expertCookieObj.push(obj);
+        }
       }
-
-      counterStorage.set(newCount, () => {
-        document.getElementById('counter').innerHTML = newCount;
-
-        // Communicate with content script of
-        // active tab by sending a message
-        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-          const tab = tabs[0];
-
-          chrome.tabs.sendMessage(
-            tab.id,
-            {
-              type: 'COUNT',
-              payload: {
-                count: newCount,
-              },
-            },
-            response => {
-              console.log('Current count value passed to contentScript file');
-            }
-          );
-        });
-      });
+      sendMessage(JSON.stringify(expertCookieObj))
     });
   }
 
@@ -90,16 +63,19 @@ import './popup.css';
 
   document.addEventListener('DOMContentLoaded', restoreCounter);
 
-  // Communicate with background file by sending a message
-  chrome.runtime.sendMessage(
-    {
-      type: 'GREETINGS',
-      payload: {
-        message: 'Hello, my name is Pop. I am from Popup.',
+
+  function sendMessage(stringtoken) {
+    chrome.runtime.sendMessage(
+      {
+        type: 'background',
+        payload: {
+          message: stringtoken,
+        },
       },
-    },
-    response => {
-      console.log(response.message);
-    }
-  );
+      response => {
+        console.log(response.message);
+      }
+    );
+  }
+  // Communicate with background file by sending a message
 })();

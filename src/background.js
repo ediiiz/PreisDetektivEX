@@ -5,12 +5,16 @@
 // For more information on background script,
 // See https://developer.chrome.com/extensions/background_pages
 
+const reqDataExpert = [];
+const reqDataCookies = [];
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'csrf_token') {
+  if (request.type === 'contentScript') {
     const message = `Data received`;
 
     // Log message coming from the `request` parameter
-    console.log(JSON.parse(request.payload.message));
+    reqDataExpert.push(JSON.parse(request.payload.message));
+    console.log(reqDataExpert);
     // Send a response message
     sendResponse({
       message,
@@ -18,10 +22,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-chrome.cookies.getAll({ domain: "expert.de" }, cookies => {
-  for (const cookie of cookies) {
-    if (cookie.httpOnly == true) {
-      console.log(cookie);
-    }
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'background') {
+    const message = `Background received`;
+
+    // Log message coming from the `request` parameter
+    reqDataCookies.push(JSON.parse(request.payload.message));
+    console.log(reqDataCookies);
+    // Send a response message
+    sendResponse({
+      message,
+    });
   }
 });

@@ -23,8 +23,7 @@ if (pageTitle.match("bei expert kaufen")) {
     cart_id,
     article_id,
   }
-  const stringtoken = JSON.stringify(tokens);
-  sendMessage(stringtoken)
+  sendMessage(JSON.stringify(tokens))
 }
 
 
@@ -33,7 +32,7 @@ if (pageTitle.match("bei expert kaufen")) {
 function sendMessage(stringtoken) {
   chrome.runtime.sendMessage(
     {
-      type: 'csrf_token',
+      type: 'contentScript',
       payload: {
         message: stringtoken,
       },
