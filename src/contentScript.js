@@ -13,22 +13,36 @@
 
 // Log `title` of current active web page
 const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
-console.log(
-  `Page title is: '${pageTitle}' - evaluated by Chrome extension's 'contentScript.js' file`
-);
+if (pageTitle.match("bei expert kaufen")) {
+  const csrf_token = document.head.querySelector('meta').getAttribute('content');
+  const element = document.querySelector('div.widget-ArticleStatus');
+  const cart_id = element.getAttribute('data-cart-id');
+  const article_id = element.getAttribute('data-article-id');
+  const tokens = {
+    csrf_token,
+    cart_id,
+    article_id,
+  }
+  const stringtoken = JSON.stringify(tokens);
+  sendMessage(stringtoken)
+}
+
 
 // Communicate with background file by sending a message
-chrome.runtime.sendMessage(
-  {
-    type: 'GREETINGS',
-    payload: {
-      message: 'Hello, my name is Con. I am from ContentScript.',
+
+function sendMessage(stringtoken) {
+  chrome.runtime.sendMessage(
+    {
+      type: 'csrf_token',
+      payload: {
+        message: stringtoken,
+      },
     },
-  },
-  response => {
-    console.log(response.message);
-  }
-);
+    response => {
+      console.log(response.message);
+    }
+  );
+}
 
 // Listen for message
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

@@ -1,6 +1,6 @@
 {
-  "manifest_version": 2,
-  "name": "Preisdetektivex",
+  "manifest_version": 3,
+  "name": "Preis-Detektiv",
   "version": "0.1.0",
   "description": "My Chrome Extension",
   "icons": {
@@ -9,19 +9,24 @@
     "48": "icons/icon_48.png",
     "128": "icons/icon_128.png"
   },
+
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
+    "service_worker": "background.js"
   },
-  "browser_action": {
-    "default_title": "Preisdetektivex",
+
+  "permissions": [
+    "storage",
+    "cookies"
+  ],
+
+  "host_permissions": [
+    "*://*.expert.de/"
+  ],
+
+  "action": {
     "default_popup": "popup.html"
   },
-  "permissions": [
-    "storage"
-  ],
+
   "content_scripts": [
     {
       "matches": [
