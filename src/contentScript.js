@@ -12,45 +12,28 @@
 // See https://developer.chrome.com/extensions/content_scripts
 
 // Log `title` of current active web page
-const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
-if (pageTitle.match("bei expert kaufen")) {
-  const csrf_token = document.head.querySelector('meta').getAttribute('content');
-  const element = document.querySelector('div.widget-ArticleStatus');
-  const cart_id = element.getAttribute('data-cart-id');
-  const article_id = element.getAttribute('data-article-id');
-  const tokens = {
-    csrf_token,
-    cart_id,
-    article_id,
-  }
-  sendMessage(JSON.stringify(tokens))
-}
 
+(() => {
+  function loadExpertTokens() {
+    const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
+    if (pageTitle.match("bei expert kaufen")) {
+      const csrf_token = document.head.querySelector('meta').getAttribute('content')
+      const element = document.querySelector('div.widget-ArticleStatus');
+      const cart_id = element.getAttribute('data-cart-id');
+      const article_id = element.getAttribute('data-article-id');
+      chrome.storage.local.set({ csrf_token: csrf_token }, () => {
+        console.log('Stored: ' + csrf_token);
+      })
+      chrome.storage.local.set({ cart_id: cart_id }, () => {
+        console.log('Stored: ' + cart_id);
+      })
+      chrome.storage.local.set({ article_id: article_id }, () => {
+        console.log('Stored: ' + article_id);
+      })
 
-// Communicate with background file by sending a message
-
-function sendMessage(stringtoken) {
-  chrome.runtime.sendMessage(
-    {
-      type: 'contentScript',
-      payload: {
-        message: stringtoken,
-      },
-    },
-    response => {
-      console.log(response.message);
     }
-  );
-}
-
-// Listen for message
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'COUNT') {
-    console.log(`Current count is ${request.payload.count}`);
   }
 
-  // Send an empty response
-  // See https://github.com/mozilla/webextension-polyfill/issues/130#issuecomment-531531890
-  sendResponse({});
-  return true;
-});
+  loadExpertTokens()
+
+})();

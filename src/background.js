@@ -1,37 +1,51 @@
-'use strict';
+chrome.action.disable();
 
-// With background scripts you can communicate with popup
-// and contentScript files.
-// For more information on background script,
-// See https://developer.chrome.com/extensions/background_pages
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.declarativeContent.onPageChanged.removeRules(() => {
+    chrome.declarativeContent.onPageChanged.addRules([{
+      conditions: chrome.runtime.getManifest().host_permissions.map(h => {
+        const [, sub, host] = h.match(/:\/\/(\*\.)?([^/]+)/);
+        return new chrome.declarativeContent.PageStateMatcher({
+          pageUrl: sub ? { hostSuffix: '.' + host } : { hostEquals: host },
+        });
+      }),
+      actions: [new chrome.declarativeContent.ShowAction()],
+    }]);
+  });
+});
 
-const reqDataExpert = [];
-const reqDataCookies = [];
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'contentScript') {
-    const message = `Data received`;
-
-    // Log message coming from the `request` parameter
-    reqDataExpert.push(JSON.parse(request.payload.message));
-    console.log(reqDataExpert);
-    // Send a response message
-    sendResponse({
-      message,
-    });
+chrome.tabs.onUpdated.addListener((tabId, tab) => {
+  if (tab.favIconUrl && tab.favIconUrl.includes("expert.de")) {
+    console.log(tab);
+    loadExpertCookies();
+    chrome.storage.local.set({ tabId: tabId }, () => {
+      console.log('Stored: ' + tabId);
+    })
   }
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'background') {
-    const message = `Background received`;
+function loadExpertCookies() {
+  chrome.cookies.getAll({ domain: "expert.de" }, cookies => {
+    for (const cookie of cookies) {
+      if (cookie.name.includes("__cflb")) {
+        chrome.storage.local.set({ __cflb: cookie.value }, () => {
+          console.log('Stored: ' + cookie.value);
+        })
+      }
+      if (cookie.name.includes("__cf_bm")) {
+        chrome.storage.local.set({ __cf_bm: cookie.value }, () => {
+          console.log('Stored: ' + cookie.value);
+        })
+      }
+      if (cookie.name.includes("session")) {
+        chrome.storage.local.set({ session: cookie.value }, () => {
+          console.log('Stored: ' + cookie.value);
+        })
+      }
+    }
+  })
+};
 
-    // Log message coming from the `request` parameter
-    reqDataCookies.push(JSON.parse(request.payload.message));
-    console.log(reqDataCookies);
-    // Send a response message
-    sendResponse({
-      message,
-    });
-  }
-});
+
+
