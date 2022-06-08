@@ -20,7 +20,6 @@
     "tabs",
     "activeTab",
     "scripting",
-    "*://*.expert.de/*",
     "declarativeContent"
   ],
 
@@ -35,7 +34,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.expert.de/*"
+        "*://*.expert.de/shop/*"
       ],
       "run_at": "document_idle",
       "js": [

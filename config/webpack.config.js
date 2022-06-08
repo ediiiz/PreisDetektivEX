@@ -12,6 +12,7 @@ const config = merge(common, {
     contentScript: PATHS.src + '/contentScript.js',
     background: PATHS.src + '/background.js',
     axios: PATHS.src + '/axios.js',
+    branches: PATHS.src + '/branches.js',
   },
 });
 

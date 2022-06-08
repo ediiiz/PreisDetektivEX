@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Preis-Detektiv</title>
     <link rel="stylesheet" href="popup.css" />
-</head>
-<body>
-  <div class="app">
-    <p class="counter-label">Produkt</p>
-    <div id="counter" class="counter"></div>
-    <div class="button-container">
-      <button id="bestpreis-finden" class="button">Bestpreis finden</button>
+  </head>
+  <body>
+    <div class="app">
+      <p id="productname" class="product">Produkt</p>
+      <div class="button-container">
+        <button id="bestpreis-finden" class="button">Bestpreis finden</button>
+      </div>
     </div>
-  </div>
-
-  <script src="popup.js"></script>
-</body>
+    <div id="counter" class="counters">
+      <div class="Progressbar">
+        <div class="Progressbar__value"></div>
+        <progress value="1" max="100">100%</progress>
+      </div>
+      <div>
+        <label>
+          <p class="currentMarket"></p>
+        </label>
+      </div>
+    </div>
+    <div class="result-container"></div>
+    <script src="popup.js"></script>
+  </body>
 </html>
