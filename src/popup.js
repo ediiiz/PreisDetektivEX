@@ -8,24 +8,32 @@ const sleep = (milliseconds) => {
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
 
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
   let checkPagebutton = document.getElementById('bestpreis-finden');
   checkPagebutton.addEventListener('click', function () {
+    try {
+      document.getElementsByClassName('zui-table')[0].remove();
+    } catch (error) {
+      console.log('No table to remove');
+    }
     getExpertPrice()
   });
 })
 
 function popup() {
-  chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+  browser.tabs.query({ currentWindow: true, active: true }, function (tabs) {
     var activeTab = tabs[0];
     console.log(activeTab);
-    chrome.tabs.sendMessage(activeTab.id, { "message": "start" });
+    browser.tabs.sendMessage(activeTab.id, { "message": "start" });
   });
 }
 
 async function updateHTML() {
   const data = await getRequestData();
-  document.getElementById('productname').innerHTML = data.product
+  document.getElementById('productname').innerHTML = data.product;
 }
 
 updateHTML();
@@ -40,6 +48,26 @@ function setValue(value) {
 }
 
 setValue(input);
+
+async function reloadTable() {
+  let lastSearch = await browser.storage.local.get(['lastSearch']);
+  if (lastSearch.length != 0) {
+    makeList(lastSearch.lastSearch);
+  }
+}
+
+reloadTable();
+
+async function reloadPageWithBestPrice(sortedResults) {
+  const branch_id = sortedResults[0].branch_id
+  await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
+  await browser.cookies.set({
+    url: "https://www.expert.de",
+    name: "fmarktcookie",
+    value: `e_${branch_id}`
+  });
+}
+
 
 function makeList(sortedResults) {
   let listData = sortedResults
@@ -62,14 +90,16 @@ function makeList(sortedResults) {
     tr.appendChild(market);
     tr.appendChild(url);
     url.appendChild(href);
-    href.href = listData[entry].url;
+    href.href = listData[entry].url + "wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate"; // should load dynamicly
     href.innerHTML = "LINK"
+    href.setAttribute("target", "_blank");
   }
+  reloadPageWithBestPrice(sortedResults);
 }
 
 
 async function getRequestData() {
-  const data = await chrome.storage.local.get(['session', 'cart_id', 'article_id', 'csrf_token', '__cf_bm', '__cflb', 'producturl', 'product'])
+  const data = await browser.storage.local.get(['session', 'cart_id', 'article_id', 'csrf_token', '__cf_bm', '__cflb', 'producturl', 'product'])
   const cart_id = data.cart_id;
   const csrf_token = data.csrf_token;
   const article_id = data.article_id;
@@ -148,8 +178,8 @@ async function makeApiRequest(requiredData) {
   const branch_id = requiredData.branch_id;
   const url = `${requiredData.producturl}?branch_id=${requiredData.branch_id}&gclid=0`;
 
-  await chrome.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
-  await chrome.cookies.set({
+  await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
+  await browser.cookies.set({
     url: "https://www.expert.de",
     name: "fmarktcookie",
     value: `e_${branch_id}`
@@ -238,6 +268,7 @@ async function sortAndPush(resolvedMarketObjects) {
         break;
       } else {
         returnprices.push({
+          branch_id: sortedprices[links].branch_id,
           price: sortedprices[links].price,
           market: sortedprices[links].market,
           url: sortedprices[links].url,
@@ -247,6 +278,9 @@ async function sortAndPush(resolvedMarketObjects) {
     }
 
     makeList(returnprices);
+    browser.storage.local.set({ lastSearch: returnprices }, () => {
+      console.log('lastSearch: ' + JSON.stringify(returnprices));
+    })
   } catch (error) {
     console.error('Oops! Something went wrong while sorting prices', error);
   }

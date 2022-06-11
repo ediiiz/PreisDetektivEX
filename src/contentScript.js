@@ -8,19 +8,19 @@
       const article_id = element.getAttribute('data-article-id');
       const producturl = document.location.href.split('?')[0];
       const product = pageTitle.split(' -')[0]
-      chrome.storage.local.set({ csrf_token: csrf_token }, () => {
+      browser.storage.local.set({ csrf_token: csrf_token }, () => {
         console.log('CSRF: ' + csrf_token);
       })
-      chrome.storage.local.set({ cart_id: cart_id }, () => {
+      browser.storage.local.set({ cart_id: cart_id }, () => {
         console.log('CartID: ' + cart_id);
       })
-      chrome.storage.local.set({ article_id: article_id }, () => {
+      browser.storage.local.set({ article_id: article_id }, () => {
         console.log('ArticleID: ' + article_id);
       })
-      chrome.storage.local.set({ producturl: producturl }, () => {
+      browser.storage.local.set({ producturl: producturl }, () => {
         console.log('ProductUrl: ' + producturl);
       })
-      chrome.storage.local.set({ product: product }, () => {
+      browser.storage.local.set({ product: product }, () => {
         console.log('Product: ' + product);
       })
 

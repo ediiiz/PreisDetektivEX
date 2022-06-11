@@ -15,7 +15,7 @@ html {
 }
 
 body {
-    width: 350px;
+    width: fit-content;
     height: fit-content;
 }
 
@@ -26,7 +26,7 @@ body {
     justify-content: center;
     flex-direction: column;
     text-align: center;
-    padding: 10px;
+    padding: 3%;
 }
 
 .result-container{
@@ -66,7 +66,9 @@ code {
 }
 
 .button-container {
-    margin-top: 15px;
+    margin-top: 2%;
+    padding-left: 3%;
+    padding-right: 3%;
 }
 
 .currentMarket {
@@ -76,27 +78,16 @@ code {
     flex-direction: column;
     text-align: center;
     padding: 2%;
-    font: bolder 10px
-}
-
-.product {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    padding: 2%;
-    font: bolder 10px
+    font-size:4vw;
+    font-weight:bold;
 }
 
 .button {
     border: 0;
     display: inline-block;
     padding: 10px 20px;
-    margin-right: 4px;
-    margin-left: 4px;
-    background-color: bisque;
-    font-size: 16px;
+    background-color: #fc6b02;
+    font-size: 5vw;
     cursor: pointer;
     border-radius: 4px;
     text-decoration: none;
@@ -125,33 +116,30 @@ code {
     border-spacing: 0;
     font: normal 13px Arial, sans-serif;
 }
-.zui-table thead th {
-    background-color: #DDEFEF;
-    border: hidden 1px #DDEEEE;
-    color: #336B6B;
-    padding: 10px;
-    text-align: left;
-    text-shadow: 1px 1px 1px #fff;
-}
+
 .zui-table tbody td {
     border-bottom: outset 1px #DDEEEE;
     color: #333;
     padding: 15px;
     text-shadow: 1px 1px 1px #fff;
+    font-weight: bold;
+    font-size: 4vw;
 }
 
 
 .Progressbar {
+    margin-left: 4vw;
+    margin-right: 4vw;
     position: relative;
     height: 20px;
-    border-radius: 2px;
+    border-radius: 4px;
     background-color: #484848;
   }
   
 .Progressbar__value {
     height: 20px;
+    border-radius: 4px;
     transition: width 0.4s ease-in-out;
-
     background-color: #fc6b02;
     will-change: width;
 }
@@ -163,4 +151,29 @@ code {
     position: absolute;
     pointer-events: none;
 }
+
+.product {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    font-size: 5vw;
+    font-weight: bolder;
+}
+
+
+html::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #fc6b02;
+}
+
+html::-webkit-scrollbar-track {
+    background: white;
+}
+
 

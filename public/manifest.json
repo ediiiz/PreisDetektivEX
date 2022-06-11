@@ -11,7 +11,7 @@
   },
 
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
 
   "permissions": [
@@ -19,16 +19,14 @@
     "cookies",
     "tabs",
     "activeTab",
-    "scripting",
-    "declarativeContent"
+    "scripting"
   ],
 
   "host_permissions": [
-    "*://*.expert.de/*"
+    "*://*.expert.de/shop/*"
   ],
 
   "action": {
-    "default_popup": "popup.html"
   },
 
   "content_scripts": [
