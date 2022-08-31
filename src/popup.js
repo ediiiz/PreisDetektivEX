@@ -178,6 +178,8 @@ async function makeApiRequest(requiredData) {
   const branch_id = requiredData.branch_id;
   const url = `${requiredData.producturl}?branch_id=${requiredData.branch_id}&gclid=0`;
 
+
+  // Delete Cookies to Switch to a new one from branches
   await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
   await browser.cookies.set({
     url: "https://www.expert.de",

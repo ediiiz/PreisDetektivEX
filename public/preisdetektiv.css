@@ -41,12 +41,33 @@
   cursor: pointer;
 }
 
-#bestpreis-text{
+
+.counters {
+  display: block;
+  margin-top: 15px;
+}
+
+.Progressbar {
+  margin-left: 4vw;
+  margin-right: 4vw;
+  position: relative;
+  height: 20px;
+  border-radius: 4px;
+  background-color: #484848;
+}
+
+.Progressbar__value {
+  height: 20px;
+  border-radius: 4px;
+  transition: width 0.4s ease-in-out;
+  background-color: #ffffff;
+  will-change: width;
+}
+
+.Progressbar > progress {
+  opacity: 0;
+  width: 1px;
+  height: 1px;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  font-size: 50px;
-  color: black;
-  transform: translate(-50%,-50%);
-  -ms-transform: translate(-50%,-50%);
+  pointer-events: none;
 }
