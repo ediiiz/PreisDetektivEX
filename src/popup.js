@@ -1,6 +1,8 @@
 import { branchesArray } from './branches.js';
 
 
+const refLink = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
+
 const sleep = (milliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
@@ -32,7 +34,7 @@ function popup() {
 }
 
 async function updateHTML() {
-  const data = await getRequestData();
+  const data = await getStorageData();
   document.getElementById('productname').innerHTML = data.product;
 }
 
@@ -50,9 +52,9 @@ function setValue(value) {
 setValue(input);
 
 async function reloadTable() {
-  let lastSearch = await browser.storage.local.get(['lastSearch']);
-  if (lastSearch.length != 0) {
-    makeList(lastSearch.lastSearch);
+  let storage = await browser.storage.local.get(['lastSearch']);
+  if (storage.length != 0) {
+    createListForResults(storage.lastSearch);
   }
 }
 
@@ -69,36 +71,41 @@ async function reloadPageWithBestPrice(sortedResults) {
 }
 
 
-function makeList(sortedResults) {
+function createListForResults(sortedResults) {
   let listData = sortedResults
   let table = document.createElement('table')
   table.classList.add("zui-table")
   let tbody = document.createElement('tbody')
   for (const entry in listData) {
+    // Create new Elements
     let href = document.createElement('a')
     let tr = document.createElement('tr')
-    const body = document.getElementsByClassName('result-container')[0];
-    body.appendChild(table);
-    table.appendChild(tbody);
-    tbody.appendChild(tr);
     let market = document.createElement('td');
     let price = document.createElement('td');
     let url = document.createElement('td');
-    price.innerHTML = listData[entry].price + "€";
-    market.innerHTML = listData[entry].market;
+    const body = document.getElementsByClassName('result-container')[0];
+
+    //Add Elements to DOM
+    body.appendChild(table);
+    table.appendChild(tbody);
+    tbody.appendChild(tr);
     tr.appendChild(price);
     tr.appendChild(market);
     tr.appendChild(url);
     url.appendChild(href);
-    href.href = listData[entry].url + "wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate"; // should load dynamicly
+
+    //Add Data to Elements
+    price.innerHTML = listData[entry].price + "€";
+    market.innerHTML = listData[entry].market;
+    href.href = listData[entry].url + refLink; // reflink should load dynamicly
     href.innerHTML = "LINK"
     href.setAttribute("target", "_blank");
   }
-  reloadPageWithBestPrice(sortedResults);
+  //reloadPageWithBestPrice(sortedResults);
 }
 
 
-async function getRequestData() {
+async function getStorageData() {
   const data = await browser.storage.local.get(['session', 'cart_id', 'article_id', 'csrf_token', '__cf_bm', '__cflb', 'producturl', 'product'])
   const cart_id = data.cart_id;
   const csrf_token = data.csrf_token;
@@ -117,7 +124,7 @@ async function getRequestData() {
 
 
 async function getExpertPrice(branch_id = 0) {
-  const data = await getRequestData()
+  const data = await getStorageData()
   const producturl = data.producturl
   const cart_id = data.cart_id
   const csrf_token = data.csrf_token
@@ -136,11 +143,11 @@ async function getExpertPrice(branch_id = 0) {
     const marketobj = await makeApiRequest(requestData);
     console.log(marketobj);
   } else {
-    getAllBranchesFast(requestData);
+    getAllBranches(requestData);
   }
 }
 
-async function getAllBranchesFast(initialExpertData) {
+async function getAllBranches(initialExpertData) {
   try {
     const arrayOfMarketObjects = [];
     for (const branch of branchesArray) {
@@ -279,7 +286,7 @@ async function sortAndPush(resolvedMarketObjects) {
       }
     }
 
-    makeList(returnprices);
+    createListForResults(returnprices);
     browser.storage.local.set({ lastSearch: returnprices }, () => {
       console.log('lastSearch: ' + JSON.stringify(returnprices));
     })
