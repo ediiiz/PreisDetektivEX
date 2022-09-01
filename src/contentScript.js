@@ -305,6 +305,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       headers: myHeaders,
       body: raw,
       redirect: 'follow',
+      credentials: 'include',
     };
 
     try {
@@ -365,6 +366,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       headers: myHeaders,
       body: raw,
       redirect: 'follow',
+      credentials: 'include',
     };
 
     try {
