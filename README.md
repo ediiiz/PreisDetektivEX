@@ -9,9 +9,9 @@ My Chrome Extension
 
 ## Install
 
-npm Install
-npm run watch or build
-add build/manifest.json in firefox debug addons
+- npm Install
+- npm run watch or build
+- add build/manifest.json in firefox debug addons
 
 [**Chrome** extension]()
 
