@@ -5,6 +5,8 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
 
 (() => {
 
+  // Load needed data from the page
+
   function loadExpertTokens() {
     const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
     if (pageTitle.match("bei expert kaufen")) {
@@ -26,6 +28,8 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       })
     }
   }
+
+  // Create PreisDetektiv Button on Product Page
 
   function addPreisDetektivToSite() {
     const element = document.getElementsByClassName('widget-ArticleStatus-statusPoint')[0];
@@ -109,6 +113,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     setDisplay('counter', 'none');
   }
 
+  // Reload Results if available
 
   async function reloadTable() {
     let storage = await browser.storage.local.get(['lastSearch']);
@@ -119,6 +124,8 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     }
   }
 
+
+  // Create Table with Results
 
   function createListForResults(sortedResults) {
     let listData = sortedResults
@@ -152,6 +159,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     }
   }
 
+  // Get the needed Data from storage
 
   async function getStorageData() {
     const data = await browser.storage.local.get(
@@ -169,29 +177,25 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     return data;
   }
 
+  // Logic if single request is made or if every market is checked
+  // if branch_id is set, only one market is checked
+  // if branch_id is not set, all markets are checked
 
   async function getExpertPrice(branch_id = 0) {
-    const data = await getStorageData()
+    const requestData = await getStorageData()
 
     // Destructure data
     const {
       cart_id,
       csrf_token,
       article_id,
-      producturl
-    } = data;
+    } = requestData;
 
     if (article_id === '' && cart_id === '' && csrf_token === '') {
       throw new Error('Oops! Static Data is empty, cant continue');
     };
 
-    const requestData = {
-      cart_id,
-      csrf_token,
-      article_id,
-      branch_id,
-      producturl,
-    };
+    requestData['branch_id'] = branch_id;
 
     if (branch_id != 0) {
       const marketobj = await makeApiRequest(requestData);
@@ -422,7 +426,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     console.log(`Error: ${error}`);
   }
 
-  /// Helper Functions
+  /// Start
 
   loadExpertTokens();
   addPreisDetektivToSite();
