@@ -90,6 +90,8 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
 
   }
 
+  /// Button Logic
+
   async function bestpreisButton() {
     //setDisplay('bestpreis-overlay', 'block');
     // Send Runtime message to background.js to get the csrf_token
@@ -107,44 +109,6 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     setDisplay('counter', 'none');
   }
 
-  function setProgessbar(value) {
-    const progressValue = document.querySelector('.Progressbar__value');
-    const progress = document.querySelector('progress');
-    progressValue.style.width = `${value}%`;
-    progress.value = value;
-  }
-
-  function setDisplay(Id, attr) {
-    document.getElementById(Id).style.display = attr;
-  }
-
-  const sleep = (milliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, milliseconds));
-  };
-
-  async function notifyBackgroundPage(input, payload) {
-    const sending = browser.runtime.sendMessage({
-      message: input,
-      payload: payload,
-    });
-    sending.then(handleResponse, handleError);
-  }
-
-  function handleResponse(message) {
-    console.log(`Message from the background script: ${message.response}`);
-  }
-
-  function handleError(error) {
-    console.log(`Error: ${error}`);
-  }
-
-
-  async function updateHTML() {
-    const data = await getStorageData();
-    document.getElementById('productname').innerHTML = data.product;
-  }
-
-  //updateHTML();
 
   async function reloadTable() {
     let storage = await browser.storage.local.get(['lastSearch']);
@@ -153,18 +117,6 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
     } else {
       console.log('No lastSearch found');
     }
-  }
-
-  reloadTable();
-
-  async function reloadPageWithBestPrice(sortedResults) {
-    const branch_id = sortedResults[0].branch_id
-    await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
-    await browser.cookies.set({
-      url: "https://www.expert.de",
-      name: "fmarktcookie",
-      value: `e_${branch_id}`
-    });
   }
 
 
@@ -198,37 +150,41 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       href.innerHTML = "LINK"
       href.setAttribute("target", "_blank");
     }
-    //reloadPageWithBestPrice(sortedResults);
   }
 
 
   async function getStorageData() {
-    const data = await browser.storage.local.get(['session', 'cart_id', 'article_id', 'csrf_token', '__cf_bm', '__cflb', 'producturl', 'product'])
-    const cart_id = data.cart_id;
-    const csrf_token = data.csrf_token;
-    const article_id = data.article_id;
-    const producturl = data.producturl;
-    const product = data.product;
-    const obj = {
-      cart_id,
-      csrf_token,
-      article_id,
-      producturl,
-      product,
-    }
-    return obj;
+    const data = await browser.storage.local.get(
+      [
+        'session',
+        'cart_id',
+        'article_id',
+        'csrf_token',
+        '__cf_bm',
+        '__cflb',
+        'producturl',
+        'product'
+      ]
+    )
+    return data;
   }
 
 
   async function getExpertPrice(branch_id = 0) {
     const data = await getStorageData()
-    const producturl = data.producturl
-    const cart_id = data.cart_id
-    const csrf_token = data.csrf_token
-    const article_id = data.article_id
+
+    // Destructure data
+    const {
+      cart_id,
+      csrf_token,
+      article_id,
+      producturl
+    } = data;
+
     if (article_id === '' && cart_id === '' && csrf_token === '') {
       throw new Error('Oops! Static Data is empty, cant continue');
-    }
+    };
+
     const requestData = {
       cart_id,
       csrf_token,
@@ -236,26 +192,28 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       branch_id,
       producturl,
     };
+
     if (branch_id != 0) {
       const marketobj = await makeApiRequest(requestData);
       console.log(marketobj);
     } else {
       getAllBranches(requestData);
-    }
-  }
+    };
+  };
 
-  async function getAllBranches(initialExpertData) {
+  async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
     try {
       const arrayOfMarketObjects = [];
       for (const branch of branchesArray) {
-        let branchpercent = branchesArray.indexOf(branch) / branchesArray.length * 100;
-        setProgessbar(branchpercent)
+
+        setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
+
         const requestData = {
-          cart_id: initialExpertData.cart_id,
-          article_id: initialExpertData.article_id,
-          csrf_token: initialExpertData.csrf_token,
+          cart_id,
+          article_id,
+          csrf_token,
           branch_id: branch.branch_id,
-          producturl: initialExpertData.producturl,
+          producturl,
         };
         const marketObject = await makeApiRequest(requestData);
         arrayOfMarketObjects.push(marketObject);
@@ -271,17 +229,12 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
   }
 
 
-  async function makeApiRequest(requiredData) {
+  async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl }) {
     const market = branchesArray.find(
-      (b) => b.branch_id == requiredData.branch_id
+      (b) => b.branch_id == branch_id
     ).market;
     console.log(market);
-    const cart_id = requiredData.cart_id;
-    const article_id = requiredData.article_id;
-    const csrf_token = requiredData.csrf_token;
-    const branch_id = requiredData.branch_id;
-    const url = `${requiredData.producturl}?branch_id=${requiredData.branch_id}&gclid=0`;
-
+    const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
     // Delete Cookies to Switch to a new one from branches
     await notifyBackgroundPage('switchCookie', branch_id);
@@ -298,6 +251,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       quantity: "1",
       article: article_id,
     }
+
     let raw = JSON.stringify(obj);
 
     let requestOptions = {
@@ -312,19 +266,22 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
       const response = await fetch(BASKET_ENDPOINT, requestOptions);
       const responsetojson = await response.json();
       const item = await responsetojson.shoppingCart.itemList.items[0];
+
+      if (item.quantity >= 2) {
+        await resetCart(item.id, cart_id, csrf_token)
+      }
+
       if (!response.ok) {
         let error = responsetojson
         error['status'] = response.status
         throw error
 
       }
-      if (item.quantity >= 2) {
-        await resetCart(item.id, cart_id, csrf_token)
-      }
 
       const price = await responsetojson.shoppingCart.lastAdded.price.gross;
 
-      document.getElementsByClassName('currentMarket')[0].innerHTML = market + ': ' + price + "€"
+      document.getElementsByClassName('currentMarket')[0].innerHTML = market + ': ' + price + "€";
+
       return {
         branch_id,
         price,
@@ -432,10 +389,44 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
   }
 
 
+  /// Helper Functions
 
+  function setProgessbar(value) {
+    const progressValue = document.querySelector('.Progressbar__value');
+    const progress = document.querySelector('progress');
+    progressValue.style.width = `${value}%`;
+    progress.value = value;
+  }
+
+  function setDisplay(Id, attr) {
+    document.getElementById(Id).style.display = attr;
+  }
+
+  const sleep = (milliseconds) => {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  };
+
+  async function notifyBackgroundPage(input, payload) {
+    const sending = browser.runtime.sendMessage({
+      message: input,
+      payload: payload,
+    });
+    sending.then(handleResponse, handleError);
+  }
+
+  function handleResponse(message) {
+    console.log(`Message from the background script: ${message.response}`);
+  }
+
+  function handleError(error) {
+    console.log(`Error: ${error}`);
+  }
+
+  /// Helper Functions
 
   loadExpertTokens();
   addPreisDetektivToSite();
   setProgessbar(0);
+  reloadTable();
 
 })();
