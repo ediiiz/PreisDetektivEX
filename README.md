@@ -1,11 +1,9 @@
 # <img src="public/icons/icon_48.png" width="45" align="left"> Preisdetektivex
 
-My Chrome Extension
-
 ## Features
 
-- Feature 1
-- Feature 2
+- Fuegt einen Button unter "In den Warenkorb" hinzu
+- Durchsucht alle Expert Maerkte nach dem besten Preis
 
 ## Install
 
