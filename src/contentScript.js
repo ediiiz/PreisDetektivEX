@@ -7,7 +7,7 @@ const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuant
 // Load needed data from the page
 
 function loadExpertTokens() {
-  const pageTitle = document.head.getElementsByTagName('title')[0].innerHTML;
+  const pageTitle = document.head.getElementsByTagName('title')[0].textContent;
   if (pageTitle.match("bei expert kaufen")) {
     const csrf_token = document.head.querySelector('meta').getAttribute('content')
     const element = document.querySelector('div.widget-ArticleStatus');
@@ -43,7 +43,7 @@ function addPreisDetektivToSite() {
 
     // Append Button to Site and restyle it
     const button = document.createElement('button');
-    button.innerHTML = '💸 Expert Bestpreis finden';
+    button.textContent = '💸 Expert Bestpreis finden';
     button.id = 'bestpreis-button';
     div.appendChild(button);
     button.onclick = function () {
@@ -75,7 +75,7 @@ function addPreisDetektivToSite() {
     const value = document.createElement('progress');
     value.value = 0;
     value.max = 100;
-    value.innerHTML = '100%';
+    value.textContent = '100%';
     progress.appendChild(value);
 
     //Append currentMarket to Counter
@@ -156,10 +156,10 @@ function createListForResults(sortedResults) {
     url.appendChild(href);
 
     //Add Data to Elements
-    price.innerHTML = listData[entry].price + "€";
-    market.innerHTML = listData[entry].market;
+    price.textContent = listData[entry].price + "€";
+    market.textContent = listData[entry].market;
     href.href = listData[entry].url + REF_LINK; // reflink should load dynamicly
-    href.innerHTML = "LINK"
+    href.textContent = "LINK"
     href.setAttribute("target", "_blank");
   }
 }
@@ -194,11 +194,11 @@ async function getExpertPrice(branch_id = 0) {
     article_id,
   } = requestData;
 
+  requestData['branch_id'] = branch_id;
+
   if (article_id === '' && cart_id === '' && csrf_token === '') {
     throw new Error('Oops! Static Data is empty, cant continue');
   };
-
-  requestData['branch_id'] = branch_id;
 
   if (branch_id != 0) {
     const marketobj = await makeApiRequest(requestData);
@@ -271,23 +271,23 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
   try {
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
-    const responsetojson = await response.json();
-    const item = await responsetojson.shoppingCart.itemList.items[0] || null;
-
-    if (item.quantity >= 2) {
-      await resetCart(item.id, cart_id, csrf_token)
-    }
-
+    let responsetojson = await response.json();
     if (!response.ok) {
-      let error = responsetojson
-      error['status'] = response.status
-      throw error
-
+      responsetojson['status'] = response.status
+      throw responsetojson;
     }
 
-    const price = await responsetojson.shoppingCart.lastAdded.price.gross;
 
-    document.getElementsByClassName('currentMarket')[0].innerHTML = market + ': ' + price + "€";
+    const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
+    if (item != '') {
+      if (item.quantity >= 2) {
+        await resetCart(item.id, cart_id, csrf_token)
+      }
+    }
+
+    const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
+
+    document.getElementsByClassName('currentMarket')[0].textContent = market + ': ' + price + "€";
 
     const apiResponse = {
       branch_id,
@@ -339,11 +339,10 @@ async function resetCart(item_id, cart_id, csrf_token) {
 
   try {
     const response = await fetch(MODIFY_QUANTITY, requestOptions);
-    const responsetojson = await response.json();
+    let responsetojson = await response.json();
     if (!response.ok) {
-      let error = responsetojson
-      error['status'] = response.status
-      throw error
+      responsetojson['status'] = response.status
+      throw responsetojson;
 
     }
   } catch (error) {
