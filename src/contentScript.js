@@ -87,10 +87,11 @@ function addPreisDetektivToSite() {
     currentMarket.appendChild(label);
     label.appendChild(paragraph);
 
-    //Append resultContainer to Button
+    //Append resultContainer to Price
+    const price = document.getElementsByClassName('widget-ArticlePrice')[0];
     const resultContainer = document.createElement('div');
     resultContainer.className = 'result-container';
-    button.appendChild(resultContainer);
+    price.appendChild(resultContainer);
   }
 
 }
@@ -237,9 +238,10 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
 
 
 async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl }) {
-  const market = branchesArray.find(
+  let market = branchesArray.find(
     (b) => b.branch_id == branch_id
   ).market;
+  market = market.split('- ')[1] || market;
   console.log(market);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 

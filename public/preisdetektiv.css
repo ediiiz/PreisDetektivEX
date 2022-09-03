@@ -41,6 +41,26 @@
   cursor: pointer;
 }
 
+.result-container{
+  display: flex;
+  align-items: right;
+  justify-content: right;
+  flex-direction: column;
+  text-align: center;
+  height: 80px;
+  overflow: auto;
+}
+
+.currentMarket {
+  display: flex;
+  align-items: right;
+  justify-content: right;
+  flex-direction: column;
+  text-align: center;
+  padding-top: 10px;
+  font-size:25px;
+  font-weight:bold;
+}
 
 .counters {
   display: none;
