@@ -3,7 +3,7 @@
 const SizePlugin = require('size-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-var WebpackObfuscator = require('webpack-obfuscator');
+const WebpackObfuscator = require('webpack-obfuscator');
 
 const PATHS = require('./paths');
 
@@ -46,6 +46,8 @@ const common = {
       },
       {
         test: /\.js$/,
+        exclude: [
+        ],
         enforce: 'post',
         use: {
           loader: WebpackObfuscator.loader,

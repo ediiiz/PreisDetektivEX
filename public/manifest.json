@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Preis-Detektiv",
-  "version": "1.0.1",
+  "version": "1.0.23",
   "description": "Findet die besten Expert Preise",
   "icons": {
     "16": "icons/icon_16.png",
@@ -12,7 +12,7 @@
 
   "browser_specific_settings": {
     "gecko": {
-      "id": "{a2c71db1-9b15-455e-b77b-0eac37ef4e8e}"
+      "id": "{d899e237-7d8a-4182-86e3-5512a3024874}"
     }
   },
 
