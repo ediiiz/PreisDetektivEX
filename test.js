@@ -1,7 +1,7 @@
 const { log } = require("console");
 const fs = require("fs");
 
-let data = fs.readFileSync("/home/ediz/Documents/Coding/PreisDetektivEXFF/branches.json", "utf8");
+let data = fs.readFileSync("./branches.json", "utf8");
 let branches = JSON.parse(data);
 
 const obj = [];
