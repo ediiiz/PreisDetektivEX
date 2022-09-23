@@ -1315,7 +1315,7 @@
       "zip": "53604",
       "city": "Bad Honnef",
       "phone": "02224 77090",
-      "name": "expert Bad Honnef",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -1358,7 +1358,7 @@
       "zip": "68161",
       "city": "Mannheim",
       "phone": "0621 1239 600",
-      "name": "expert Esch City",
+      "name": "expert Esch",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -1444,7 +1444,7 @@
       "zip": "68199",
       "city": "Mannheim",
       "phone": "0621 1239 800",
-      "name": "expert Esch Neckarau",
+      "name": "expert Esch",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -1659,7 +1659,7 @@
       "zip": "53121",
       "city": "Bonn",
       "phone": "0228 604990",
-      "name": "expert Bielinsky Am Dickobskreuz",
+      "name": "expert Bielinsky",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -1806,7 +1806,7 @@
       "zip": "54516",
       "city": "Wittlich",
       "phone": "06571 95206 0",
-      "name": "expert Wittlich",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -2150,7 +2150,7 @@
       "zip": "53879",
       "city": "Euskirchen",
       "phone": "02251 9876 0",
-      "name": "expert Euskirchen",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -2970,7 +2970,7 @@
       "zip": "41540",
       "city": "Dormagen",
       "phone": "02133 4793 0",
-      "name": "expert Dormagen",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -3301,7 +3301,7 @@
       "zip": "52152",
       "city": "Simmerath",
       "phone": "02473 92722 0",
-      "name": "expert Simmerath",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -3473,7 +3473,7 @@
       "zip": "41468",
       "city": "Neuss",
       "phone": "02131 93580",
-      "name": "expert Neuss",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 40000,
       "centralStore": false
     },
@@ -4567,7 +4567,7 @@
       "zip": "41747",
       "city": "Viersen",
       "phone": "02162 816140",
-      "name": "expert Viersen",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -4782,7 +4782,7 @@
       "zip": "52525",
       "city": "Heinsberg",
       "phone": "02452 967370",
-      "name": "expert Heinsberg",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -4964,7 +4964,7 @@
       "zip": "46535",
       "city": "Dinslaken",
       "phone": "02064 82803 0",
-      "name": "expert Dinslaken",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -5093,7 +5093,7 @@
       "zip": "47475",
       "city": "Kamp-Lintfort",
       "phone": "02842 97341 0",
-      "name": "expert Kamp-Lintfort",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -5714,7 +5714,7 @@
       "zip": "98693",
       "city": "Ilmenau",
       "phone": "03677 688 0",
-      "name": "K + B expert Ilmenau",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -6066,7 +6066,7 @@
       "zip": "46509",
       "city": "Xanten",
       "phone": "02801 986470",
-      "name": "expert Xanten",
+      "name": "expert Gröblinghoff",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -7221,7 +7221,7 @@
       "zip": "48565",
       "city": "Steinfurt",
       "phone": "02551 2256",
-      "name": "expert Media-Park ",
+      "name": "expert Media-Park",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -7560,7 +7560,7 @@
       "zip": "07407",
       "city": "Rudolstadt",
       "phone": "03672 476 300",
-      "name": "K + B expert Rudolstadt",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -9228,7 +9228,7 @@
       "zip": "92224",
       "city": "Amberg",
       "phone": "09621 91690",
-      "name": "K + B expert Amberg",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -10356,7 +10356,7 @@
       "zip": "92421",
       "city": "Schwandorf",
       "phone": "09431 79890 0 ",
-      "name": "K + B expert Schwandorf",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -11172,7 +11172,7 @@
       "zip": "29614",
       "city": "Soltau",
       "phone": "05191 96740",
-      "name": "expert Soltau",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -11475,7 +11475,7 @@
       "zip": "27356",
       "city": "Rotenburg",
       "phone": "04261 93810",
-      "name": "expert Rotenburg",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -11760,7 +11760,7 @@
       "zip": "93413",
       "city": "Cham",
       "phone": "09971 393 9",
-      "name": "K + B expert Cham",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -12219,7 +12219,7 @@
       "zip": "93444",
       "city": "Bad Kötzting",
       "phone": "09941 9089 0",
-      "name": "K + B expert Kötzting",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -13157,7 +13157,7 @@
       "zip": "94209",
       "city": "Regen",
       "phone": "09921 606 0",
-      "name": "K + B expert Regen",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -13243,7 +13243,7 @@
       "zip": "21502",
       "city": "Geesthacht",
       "phone": "04152 88712 0",
-      "name": "expert Geesthacht",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -14272,7 +14272,7 @@
       "zip": "94065",
       "city": "Waldkirchen",
       "phone": "08581 9880 0",
-      "name": "K + B expert Waldkirchen",
+      "name": "K + B expert",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -14315,7 +14315,7 @@
       "zip": "23843",
       "city": "Bad Oldesloe",
       "phone": "04531 896770",
-      "name": "expert MegaLand Bad Oldesloe",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -14651,7 +14651,7 @@
       "zip": "23795",
       "city": "Bad Segeberg",
       "phone": "04551 99998 0",
-      "name": "expert MegaLand Bad Segeberg",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -15129,7 +15129,7 @@
       "zip": "23701",
       "city": "Eutin",
       "phone": "04521 409090",
-      "name": "expert MegaLand Eutin",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -15473,7 +15473,7 @@
       "zip": "24837",
       "city": "Schleswig",
       "phone": "04621 9678 0",
-      "name": "expert MegaLand Schleswig",
+      "name": "expert MegaLand",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
@@ -15648,6 +15648,49 @@
       "city": "Anklam",
       "phone": "03971 832209",
       "name": "expert Grützmann",
+      "autoAssignDistance": 30000,
+      "centralStore": false
+    },
+    "startLat": 50.240987,
+    "startLng": 8.257301199999999,
+    "linearDistance": 546876.2461146711,
+    "distance": 0.0,
+    "duration": 0,
+    "openingTimes": {
+      "Mo. - Fr.": { "times": ["10:00 - 18:00 Uhr"], "comment": "" },
+      "Sa.": { "times": ["09:00 - 12:00 Uhr"], "comment": "" }
+    }
+  },
+  {
+    "store": {
+      "id": "e_2879130",
+      "expId": "2879130",
+      "canUseShop": true,
+      "decentralizedShop": false,
+      "website": true,
+      "openingHours": [
+        {
+          "dayFrom": "MONDAY",
+          "dayTo": "FRIDAY",
+          "comment": "",
+          "timeFrom": 600,
+          "timeTo": 1080
+        },
+        {
+          "dayFrom": "SATURDAY",
+          "dayTo": "SATURDAY",
+          "comment": "",
+          "timeFrom": 540,
+          "timeTo": 720
+        }
+      ],
+      "latitude": 53.854922,
+      "longitude": 13.688618,
+      "street": "Badstüber Straße 8 A",
+      "zip": "17389",
+      "city": "Online",
+      "phone": "03971 832209",
+      "name": "expert Onlineshop",
       "autoAssignDistance": 30000,
       "centralStore": false
     },
