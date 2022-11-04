@@ -2046,7 +2046,6 @@ function getNextMarket({ response, rootidx, branchidx }) {
         getNextMarket({ response, rootidx, branchidx })
 
       }
-
     } else {
       ++rootidx
       branchidx = 0
