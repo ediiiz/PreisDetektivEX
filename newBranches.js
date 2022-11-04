@@ -1,4 +1,4 @@
-export const branches = {
+const branches = {
   'expert Onlineshop':
     [{
       id: 2879130,
@@ -2027,29 +2027,24 @@ export const branches = {
     }],
 }
 
-// console.log(Object.keys(branches));
-
 function getNextMarket({ response, rootidx, branchidx }) {
-  const rootName = Object.keys(branches)[rootidx]
   const allRoots = Object.keys(branches)
-  const branchName = branches[Object.keys(branches)[rootidx]][branchidx]
-
-  console.log(rootName);
-  console.log(branchName);
-  if (rootidx <= allRoots.length) {
-    if (branchidx <= branches[rootName][branchidx].length) {
-      console.log(`Makeing Request to ${rootName} and the market located in ${branchName}`);
+  if (rootidx <= allRoots.length - 1) {
+    const rootName = Object.keys(branches)[rootidx]
+    if (branchidx <= branches[rootName].length - 1) {
+      const branchName = branches[rootName][branchidx]
+      console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city}`);
+      ++branchidx
+      getNextMarket({ response, rootidx, branchidx })
     } else {
-      let rootidx2 = ++rootidx
-      getNextMarket({ response, rootidx2, branchidx })
+      ++rootidx
+      branchidx = 0
+      getNextMarket({ response, rootidx, branchidx })
     }
   } else {
-
+    console.log("Final Market");
+    return
   }
 }
 
 getNextMarket({ response: 200, rootidx: 0, branchidx: 0 })
-
-console.log(Object.keys(branches)[1])
-console.log(Object.keys(branches).length)
-console.log(branches[Object.keys(branches)[0]][0]);
