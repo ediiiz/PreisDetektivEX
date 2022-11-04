@@ -2031,19 +2031,32 @@ function getNextMarket({ response, rootidx, branchidx }) {
   const allRoots = Object.keys(branches)
   if (rootidx <= allRoots.length - 1) {
     const rootName = Object.keys(branches)[rootidx]
+
     if (branchidx <= branches[rootName].length - 1) {
       const branchName = branches[rootName][branchidx]
       console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city}`);
-      ++branchidx
-      getNextMarket({ response, rootidx, branchidx })
+
+      if (response > 400) {
+        ++branchidx
+        getNextMarket({ response, rootidx, branchidx })
+
+      } else {
+        ++rootidx
+        branchidx = 0
+        getNextMarket({ response, rootidx, branchidx })
+
+      }
+
     } else {
       ++rootidx
       branchidx = 0
       getNextMarket({ response, rootidx, branchidx })
+
     }
   } else {
     console.log("Final Market");
     return
+
   }
 }
 
