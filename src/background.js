@@ -1,24 +1,29 @@
-chrome.action.disable();
-
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.declarativeContent.onPageChanged.removeRules(() => {
-    chrome.declarativeContent.onPageChanged.addRules([{
-      conditions: chrome.runtime.getManifest().host_permissions.map(h => {
-        const [, sub, host] = h.match(/:\/\/(\*\.)?([^/]+)/);
-        return new chrome.declarativeContent.PageStateMatcher({
-          pageUrl: sub ? { hostSuffix: '.' + host } : { hostEquals: host },
-        });
-      }),
-      actions: [new chrome.declarativeContent.ShowAction()],
-    }]);
-  });
-});
-
-
-chrome.tabs.onUpdated.addListener((tabId, tab) => {
-  if (tab.favIconUrl && tab.favIconUrl.includes("expert.de")) {
-    chrome.storage.local.set({ tabId: tabId }, () => {
-      console.log('Stored: ' + tabId);
-    })
+async function handleMessage(request, sender, sendResponse) {
+  console.log(`A content script sent a message: ${request.message}`);
+  if (request.message === "switchCookie") {
+    const cookies = await switchCookie(request.payload);
+    return Promise.resolve(
+      { response: `Cookie switched to ${cookies.value}` });
   }
-});
+}
+
+browser.runtime.onMessage.addListener(handleMessage);
+
+
+async function switchCookie(branch_id) {
+  await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
+  await browser.cookies.set({
+    url: "https://www.expert.de",
+    name: "fmarktcookie",
+    value: `e_${branch_id}`
+  });
+
+  // Get cookie from browser
+  const cookies = await browser.cookies.get({
+    url: "https://www.expert.de",
+    name: "fmarktcookie"
+  });
+  return cookies;
+}
+
+

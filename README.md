@@ -1,13 +1,15 @@
 # <img src="public/icons/icon_48.png" width="45" align="left"> Preisdetektivex
 
-My Chrome Extension
-
 ## Features
 
-- Feature 1
-- Feature 2
+- Fuegt einen Button unter "In den Warenkorb" hinzu
+- Durchsucht alle Expert Maerkte nach dem besten Preis
 
 ## Install
+
+- npm Install
+- npm run watch or build
+- add build/manifest.json in firefox debug addons
 
 [**Chrome** extension]()
 
