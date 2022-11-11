@@ -213,7 +213,7 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
     const arrayOfMarketObjects = [];
     for (const branch of branchesArray) {
-
+      await sleep(200);
       setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
 
       const requestData = {
@@ -282,7 +282,8 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
     const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
     if (item != '') {
-      if (item.quantity >= 2) {
+      if (item.quantity) {
+        console.log("resetting the cart");
         await resetCart(item.id, cart_id, csrf_token)
       }
     }
@@ -341,11 +342,13 @@ async function resetCart(item_id, cart_id, csrf_token) {
 
   try {
     const response = await fetch(MODIFY_QUANTITY, requestOptions);
-    let responsetojson = await response.json();
+    let responsetojson = await response.json() || '';
     if (!response.ok) {
       responsetojson['status'] = response.status
       throw responsetojson;
 
+    } else {
+      return
     }
   } catch (error) {
     console.log(error);
