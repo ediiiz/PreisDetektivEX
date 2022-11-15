@@ -326,6 +326,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
     console.log(getCookie("fmarktcookie"));
     let responsetojson = await response.json();
+    await sleep(1000)
     console.log(responsetojson);
     if (!response.ok) {
       responsetojson['status'] = response.status
