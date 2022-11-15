@@ -298,10 +298,6 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
   //console.log(`1. ${city} - e_${branch_id}`);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
-  // Delete Cookies to Switch to a new one from branches
-  await notifyBackgroundPage('switchCookie', branch_id);
-  await sleep(200);
-
   let myHeaders = {
     "accept": "application/json, text/javascript, */*; q=0.01",
     "accept-language": "en-DE,en;q=0.9,de-DE;q=0.8,de;q=0.7,en-US;q=0.6",
@@ -326,7 +322,9 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
   };
 
   try {
+    await notifyBackgroundPage('switchCookie', branch_id);
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
+    console.log(getCookie("fmarktcookie"));
     let responsetojson = await response.json();
     console.log(responsetojson);
     if (!response.ok) {
@@ -499,6 +497,22 @@ function handleResponse(message) {
 
 function handleError(error) {
   console.log(`Error: ${error}`);
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
 }
 
 
