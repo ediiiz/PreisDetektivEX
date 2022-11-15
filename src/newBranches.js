@@ -1,4 +1,4 @@
-const branches = {
+export const branches = {
   'expert Onlineshop':
     [{
       id: 2879130,
@@ -2061,4 +2061,4 @@ function getNextMarket({ response, rootidx, branchidx }) {
 
 // add comment
 
-getNextMarket({ response: 200, rootidx: 0, branchidx: 0 })
+//getNextMarket({ response: 200, rootidx: 0, branchidx: 0 })

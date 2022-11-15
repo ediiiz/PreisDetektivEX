@@ -1,4 +1,5 @@
-import { branchesArray } from './branches.js';
+//import { branchesArray } from './branches.js';
+import { branches } from './newBranches.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -209,52 +210,44 @@ async function getExpertPrice(branch_id = 0) {
   };
 };
 
-async function getAllBranchesOLD({ cart_id, csrf_token, article_id, producturl }) {
-  try {
-    const arrayOfMarketObjects = [];
-    for (const branch of branchesArray) {
-      await sleep(200);
-      setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
+// async function getAllBranchesOLD({ cart_id, csrf_token, article_id, producturl }) {
+//   try {
+//     const arrayOfMarketObjects = [];
+//     for (const branch of branchesArray) {
+//       await sleep(200);
+//       setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
 
-      const requestData = {
-        cart_id,
-        article_id,
-        csrf_token,
-        branch_id: branch.branch_id,
-        producturl,
-      };
-      const marketObject = await makeApiRequest(requestData);
-      arrayOfMarketObjects.push(marketObject);
-    }
-    const resolvedMarketObjects = await Promise.all(arrayOfMarketObjects);
-    sortAndPush(resolvedMarketObjects);
-  } catch (error) {
-    console.error(
-      'Oops! Something went wrong while getting all Branches',
-      error
-    );
-  }
-}
+//       const requestData = {
+//         cart_id,
+//         article_id,
+//         csrf_token,
+//         branch_id: branch.branch_id,
+//         producturl,
+//       };
+//       const marketObject = await makeApiRequest(requestData);
+//       arrayOfMarketObjects.push(marketObject);
+//     }
+//     const resolvedMarketObjects = await Promise.all(arrayOfMarketObjects);
+//     sortAndPush(resolvedMarketObjects);
+//   } catch (error) {
+//     console.error(
+//       'Oops! Something went wrong while getting all Branches',
+//       error
+//     );
+//   }
+// }
 
 async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
-    getNextMarket({ response: 200, rootidx: 0, branchidx: 0 })
-    const arrayOfMarketObjects = [];
-    for (const branch of branchesArray) {
-      await sleep(200);
-      setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
+    const requestData = {
+      cart_id,
+      article_id,
+      csrf_token,
+      producturl,
+    };
+    marketObjectsArray = await getNextMarket(requestData)
 
-      const requestData = {
-        cart_id,
-        article_id,
-        csrf_token,
-        branch_id: branch.branch_id,
-        producturl,
-      };
-      const marketObject = await makeApiRequest(requestData);
-      arrayOfMarketObjects.push(marketObject);
-    }
-    const resolvedMarketObjects = await Promise.all(arrayOfMarketObjects);
+    const resolvedMarketObjects = await Promise.all(marketObjectsArray);
     sortAndPush(resolvedMarketObjects);
   } catch (error) {
     console.error(
@@ -264,13 +257,47 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   }
 }
 
+async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, requestData = {} }) {
+  const marketObjectsArray = [];
+  const allRoots = Object.keys(branches)
+  if (rootidx <= allRoots.length - 1) {
+    const rootName = Object.keys(branches)[rootidx]
+    if (branchidx <= branches[rootName].length - 1) {
 
-async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl }) {
-  let market = branchesArray.find(
-    (b) => b.branch_id == branch_id
-  ).market;
-  market = market.split('- ')[1] || market;
-  console.log(`1. ${market} - e_${branch_id}`);
+      const branchName = branches[rootName][branchidx]
+      console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city} with the branch_id ${branchName.id}`);
+      requestData['name'] = branchName.name;
+      requestData['branch_id'] = branchName.id;
+      requestData['city'] = branchName.city;
+      const marketObject = await makeApiRequest(requestData);
+      marketObjectsArray.push(marketObject);
+      marketObject.status = status;
+
+      if (status > 400) {
+        ++branchidx
+        getNextMarket({ status, rootidx, branchidx })
+
+      } else {
+        ++rootidx
+        branchidx = 0
+        getNextMarket({ status, rootidx, branchidx })
+
+      }
+    } else {
+      ++rootidx
+      branchidx = 0
+      getNextMarket({ status, rootidx, branchidx })
+
+    }
+  } else {
+    console.log("Final Market");
+    return marketObjectsArray;
+
+  }
+}
+
+async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl, city }) {
+  console.log(`1. ${city} - e_${branch_id}`);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
   // Delete Cookies to Switch to a new one from branches
@@ -318,14 +345,14 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
     const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
 
-    console.log(`4. ${market} - e_${branch_id} - ${price}`);
+    console.log(`4. ${city} - e_${branch_id} - ${price}`);
 
-    document.getElementsByClassName('currentMarket')[0].textContent = market + ': ' + price + "€";
+    document.getElementsByClassName('currentMarket')[0].textContent = city + ': ' + price + "€";
 
     const apiResponse = {
       branch_id,
       price,
-      market,
+      market: city,
       url,
       status: response.status,
     };
@@ -337,7 +364,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     const apiResponse = {
       branch_id,
       price: 'no price',
-      market,
+      market: city,
       url,
       status: error.status,
       namespace: error.namespace,
@@ -474,37 +501,6 @@ function handleError(error) {
   console.log(`Error: ${error}`);
 }
 
-function getNextMarket({ response, rootidx, branchidx }) {
-  const allRoots = Object.keys(branches)
-  if (rootidx <= allRoots.length - 1) {
-    const rootName = Object.keys(branches)[rootidx]
-
-    if (branchidx <= branches[rootName].length - 1) {
-      const branchName = branches[rootName][branchidx]
-      console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city}`);
-
-      if (response > 400) {
-        ++branchidx
-        getNextMarket({ response, rootidx, branchidx })
-
-      } else {
-        ++rootidx
-        branchidx = 0
-        getNextMarket({ response, rootidx, branchidx })
-
-      }
-    } else {
-      ++rootidx
-      branchidx = 0
-      getNextMarket({ response, rootidx, branchidx })
-
-    }
-  } else {
-    console.log("Final Market");
-    return
-
-  }
-}
 
 
 /// Start
