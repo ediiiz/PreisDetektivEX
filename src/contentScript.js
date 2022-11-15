@@ -3,6 +3,7 @@ import { branches } from './newBranches.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
+let marketObjectsArray = [];
 
 
 // Load needed data from the page
@@ -239,14 +240,8 @@ async function getExpertPrice(branch_id = 0) {
 
 async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
-    const requestData = {
-      cart_id,
-      article_id,
-      csrf_token,
-      producturl,
-    };
-    marketObjectsArray = await getNextMarket(requestData)
-
+    marketObjectsArray = [];
+    marketObjectsArray = await getNextMarket({ cart_id, csrf_token, article_id, producturl })
     const resolvedMarketObjects = await Promise.all(marketObjectsArray);
     sortAndPush(resolvedMarketObjects);
   } catch (error) {
@@ -257,8 +252,13 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   }
 }
 
-async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, requestData = {} }) {
-  const marketObjectsArray = [];
+async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id, csrf_token, article_id, producturl }) {
+  const requestData = {
+    cart_id,
+    article_id,
+    csrf_token,
+    producturl,
+  };
   const allRoots = Object.keys(branches)
   if (rootidx <= allRoots.length - 1) {
     const rootName = Object.keys(branches)[rootidx]
@@ -275,18 +275,18 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, request
 
       if (status > 400) {
         ++branchidx
-        getNextMarket({ status, rootidx, branchidx })
+        await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
 
       } else {
         ++rootidx
         branchidx = 0
-        getNextMarket({ status, rootidx, branchidx })
+        await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
 
       }
     } else {
       ++rootidx
       branchidx = 0
-      getNextMarket({ status, rootidx, branchidx })
+      await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
 
     }
   } else {
