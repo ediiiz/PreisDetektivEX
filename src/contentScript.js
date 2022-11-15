@@ -209,8 +209,36 @@ async function getExpertPrice(branch_id = 0) {
   };
 };
 
+async function getAllBranchesOLD({ cart_id, csrf_token, article_id, producturl }) {
+  try {
+    const arrayOfMarketObjects = [];
+    for (const branch of branchesArray) {
+      await sleep(200);
+      setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
+
+      const requestData = {
+        cart_id,
+        article_id,
+        csrf_token,
+        branch_id: branch.branch_id,
+        producturl,
+      };
+      const marketObject = await makeApiRequest(requestData);
+      arrayOfMarketObjects.push(marketObject);
+    }
+    const resolvedMarketObjects = await Promise.all(arrayOfMarketObjects);
+    sortAndPush(resolvedMarketObjects);
+  } catch (error) {
+    console.error(
+      'Oops! Something went wrong while getting all Branches',
+      error
+    );
+  }
+}
+
 async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
+    getNextMarket({ response: 200, rootidx: 0, branchidx: 0 })
     const arrayOfMarketObjects = [];
     for (const branch of branchesArray) {
       await sleep(200);
@@ -242,7 +270,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     (b) => b.branch_id == branch_id
   ).market;
   market = market.split('- ')[1] || market;
-  console.log(market);
+  console.log(`1. ${market} - e_${branch_id}`);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
   // Delete Cookies to Switch to a new one from branches
@@ -283,12 +311,14 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
     if (item != '') {
       if (item.quantity) {
-        console.log("resetting the cart");
+        console.log("3. resetting the cart");
         await resetCart(item.id, cart_id, csrf_token)
       }
     }
 
     const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
+
+    console.log(`4. ${market} - e_${branch_id} - ${price}`);
 
     document.getElementsByClassName('currentMarket')[0].textContent = market + ': ' + price + "€";
 
@@ -303,7 +333,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     return apiResponse;
 
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     const apiResponse = {
       branch_id,
       price: 'no price',
@@ -437,12 +467,45 @@ async function notifyBackgroundPage(input, payload) {
 }
 
 function handleResponse(message) {
-  console.log(`Message from the background script: ${message.response}`);
+  console.log(`2. BG: ${message.response}`);
 }
 
 function handleError(error) {
   console.log(`Error: ${error}`);
 }
+
+function getNextMarket({ response, rootidx, branchidx }) {
+  const allRoots = Object.keys(branches)
+  if (rootidx <= allRoots.length - 1) {
+    const rootName = Object.keys(branches)[rootidx]
+
+    if (branchidx <= branches[rootName].length - 1) {
+      const branchName = branches[rootName][branchidx]
+      console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city}`);
+
+      if (response > 400) {
+        ++branchidx
+        getNextMarket({ response, rootidx, branchidx })
+
+      } else {
+        ++rootidx
+        branchidx = 0
+        getNextMarket({ response, rootidx, branchidx })
+
+      }
+    } else {
+      ++rootidx
+      branchidx = 0
+      getNextMarket({ response, rootidx, branchidx })
+
+    }
+  } else {
+    console.log("Final Market");
+    return
+
+  }
+}
+
 
 /// Start
 

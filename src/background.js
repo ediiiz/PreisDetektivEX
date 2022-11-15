@@ -3,7 +3,7 @@ async function handleMessage(request, sender, sendResponse) {
   if (request.message === "switchCookie") {
     const cookies = await switchCookie(request.payload);
     return Promise.resolve(
-      { response: `Cookie switched to ${cookies.value}` });
+      { response: `Cookie = ${cookies.value}` });
   }
 }
 
