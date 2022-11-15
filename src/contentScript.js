@@ -241,7 +241,7 @@ async function getExpertPrice(branch_id = 0) {
 async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
     marketObjectsArray = [];
-    marketObjectsArray = await getNextMarket({ cart_id, csrf_token, article_id, producturl })
+    await getNextMarket({ cart_id, csrf_token, article_id, producturl })
     const resolvedMarketObjects = await Promise.all(marketObjectsArray);
     sortAndPush(resolvedMarketObjects);
   } catch (error) {
@@ -265,7 +265,7 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id
     if (branchidx <= branches[rootName].length - 1) {
 
       const branchName = branches[rootName][branchidx]
-      console.log(`Makeing Request to ${rootName} and the market located in ${branchName.city} with the branch_id ${branchName.id}`);
+      console.log(`${rootName} - ${branchName.city} - ${branchName.id}`);
       requestData['name'] = branchName.name;
       requestData['branch_id'] = branchName.id;
       requestData['city'] = branchName.city;
@@ -291,17 +291,16 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id
     }
   } else {
     console.log("Final Market");
-    return marketObjectsArray;
-
   }
 }
 
 async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl, city }) {
-  console.log(`1. ${city} - e_${branch_id}`);
+  //console.log(`1. ${city} - e_${branch_id}`);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
   // Delete Cookies to Switch to a new one from branches
   await notifyBackgroundPage('switchCookie', branch_id);
+  await sleep(200);
 
   let myHeaders = {
     "accept": "application/json, text/javascript, */*; q=0.01",
@@ -329,6 +328,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
   try {
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
     let responsetojson = await response.json();
+    console.log(responsetojson);
     if (!response.ok) {
       responsetojson['status'] = response.status
       throw responsetojson;
@@ -338,14 +338,14 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
     if (item != '') {
       if (item.quantity) {
-        console.log("3. resetting the cart");
+        //console.log("3. resetting the cart");
         await resetCart(item.id, cart_id, csrf_token)
       }
     }
 
     const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
 
-    console.log(`4. ${city} - e_${branch_id} - ${price}`);
+    console.log(`${city} - e_${branch_id} - ${price}`);
 
     document.getElementsByClassName('currentMarket')[0].textContent = city + ': ' + price + "€";
 
@@ -408,7 +408,7 @@ async function resetCart(item_id, cart_id, csrf_token) {
       return
     }
   } catch (error) {
-    console.log(error);
+    //console.log(error);
   }
 }
 
@@ -494,7 +494,7 @@ async function notifyBackgroundPage(input, payload) {
 }
 
 function handleResponse(message) {
-  console.log(`2. BG: ${message.response}`);
+  //console.log(`2. BG: ${message.response}`);
 }
 
 function handleError(error) {

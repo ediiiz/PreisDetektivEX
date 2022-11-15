@@ -11,11 +11,19 @@ browser.runtime.onMessage.addListener(handleMessage);
 
 
 async function switchCookie(branch_id) {
+
+  const d = new Date();
+  d.setTime(d.getTime() + (365 * 24 * 60 * 60 * 1000));
+
   await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
   await browser.cookies.set({
-    url: "https://www.expert.de",
+    httpOnly: true,
     name: "fmarktcookie",
-    value: `e_${branch_id}`
+    path: "/",
+    secure: true,
+    url: "https://www.expert.de",
+    value: `e_${branch_id}`,
+    expirationDate: d.valueOf() / 1000
   });
 
   // Get cookie from browser
@@ -25,5 +33,3 @@ async function switchCookie(branch_id) {
   });
   return cookies;
 }
-
-
