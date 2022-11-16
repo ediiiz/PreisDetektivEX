@@ -1,5 +1,6 @@
 //import { branchesArray } from './branches.js';
 import { branches } from './newBranches.js';
+import cookieInterceptor from './cookieInterceptor.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -318,13 +319,17 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     headers: myHeaders,
     body: raw,
     redirect: 'follow',
-    credentials: 'include',
+    credentials: 'same-origin',
   };
 
   try {
+    cookieInterceptor.enableWrite()
     await notifyBackgroundPage('switchCookie', branch_id);
+    await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
+    cookieInterceptor.disableWrite()
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
     console.log(getCookie("fmarktcookie"));
+    console.log(response.headers);
     let responsetojson = await response.json();
     console.log(responsetojson);
     if (!response.ok) {
@@ -392,7 +397,7 @@ async function resetCart(item_id, cart_id, csrf_token) {
     headers: myHeaders,
     body: raw,
     redirect: 'follow',
-    credentials: 'include',
+    credentials: 'same-origin',
   };
 
   try {
@@ -406,7 +411,7 @@ async function resetCart(item_id, cart_id, csrf_token) {
       return
     }
   } catch (error) {
-    //console.log(error);
+    console.log(error);
   }
 }
 
@@ -515,6 +520,13 @@ function getCookie(cname) {
   return "";
 }
 
+async function setCookie({ cname, cvalue, exdays }) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  let expires = "expires=" + d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
 
 
 /// Start
@@ -523,3 +535,4 @@ loadExpertTokens();
 addPreisDetektivToSite();
 setProgessbar(0);
 reloadTable();
+cookieInterceptor.init();

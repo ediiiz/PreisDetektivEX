@@ -12,6 +12,7 @@ const config = merge(common, {
     background: PATHS.src + '/background.js',
     branches: PATHS.src + '/branches.js',
     newBranches: PATHS.src + '/newBranches.js',
+    cookieInterceptor: PATHS.src + '/cookieInterceptor.js',
   },
 });
 
