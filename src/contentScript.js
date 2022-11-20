@@ -1,10 +1,10 @@
-//import { branchesArray } from './branches.js';
-import { branches } from './newBranches.js';
-import cookieInterceptor from './cookieInterceptor.js';
+import { branches } from './branches.js';
+import { fetchCashback } from './cashback.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
 let marketObjectsArray = [];
+const refUrl = 'https://www.topcashback.de/share/ED1Zx/expert-de';
 
 
 // Load needed data from the page
@@ -19,7 +19,7 @@ function loadExpertTokens() {
     const producturl = document.location.href.split('?')[0];
     const product = pageTitle.split(' -')[0]
 
-    const obj = {
+    const expertTokens = {
       cart_id,
       csrf_token,
       article_id,
@@ -27,7 +27,7 @@ function loadExpertTokens() {
       product,
     }
 
-    browser.storage.local.set(obj, () => {
+    browser.storage.local.set(expertTokens, () => {
     })
 
   }
@@ -212,33 +212,6 @@ async function getExpertPrice(branch_id = 0) {
   };
 };
 
-// async function getAllBranchesOLD({ cart_id, csrf_token, article_id, producturl }) {
-//   try {
-//     const arrayOfMarketObjects = [];
-//     for (const branch of branchesArray) {
-//       await sleep(200);
-//       setProgessbar(branchesArray.indexOf(branch) / branchesArray.length * 100)
-
-//       const requestData = {
-//         cart_id,
-//         article_id,
-//         csrf_token,
-//         branch_id: branch.branch_id,
-//         producturl,
-//       };
-//       const marketObject = await makeApiRequest(requestData);
-//       arrayOfMarketObjects.push(marketObject);
-//     }
-//     const resolvedMarketObjects = await Promise.all(arrayOfMarketObjects);
-//     sortAndPush(resolvedMarketObjects);
-//   } catch (error) {
-//     console.error(
-//       'Oops! Something went wrong while getting all Branches',
-//       error
-//     );
-//   }
-// }
-
 async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   try {
     marketObjectsArray = [];
@@ -254,7 +227,7 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
 }
 
 async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id, csrf_token, article_id, producturl }) {
-  const requestData = {
+  let requestData = {
     cart_id,
     article_id,
     csrf_token,
@@ -264,12 +237,8 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id
   if (rootidx <= allRoots.length - 1) {
     const rootName = Object.keys(branches)[rootidx]
     if (branchidx <= branches[rootName].length - 1) {
-
       const branchName = branches[rootName][branchidx]
-      console.log(`${rootName} - ${branchName.city} - ${branchName.id}`);
-      requestData['name'] = branchName.name;
-      requestData['branch_id'] = branchName.id;
-      requestData['city'] = branchName.city;
+      requestData = { ...requestData, name: branchName.name, branch_id: branchName.id, city: branchName.city };
       const marketObject = await makeApiRequest(requestData);
       marketObjectsArray.push(marketObject);
       marketObject.status = status;
@@ -296,7 +265,6 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id
 }
 
 async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl, city }) {
-  //console.log(`1. ${city} - e_${branch_id}`);
   const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
 
   let myHeaders = {
@@ -323,15 +291,11 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
   };
 
   try {
-    cookieInterceptor.enableWrite()
     await notifyBackgroundPage('switchCookie', branch_id);
     await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
-    cookieInterceptor.disableWrite()
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
-    console.log(getCookie("fmarktcookie"));
-    console.log(response.headers);
+    console.log(`document.cookie: ${getCookie("fmarktcookie")}`);
     let responsetojson = await response.json();
-    console.log(responsetojson);
     if (!response.ok) {
       responsetojson['status'] = response.status
       throw responsetojson;
@@ -341,14 +305,11 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
     if (item != '') {
       if (item.quantity) {
-        //console.log("3. resetting the cart");
         await resetCart(item.id, cart_id, csrf_token)
       }
     }
 
     const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
-
-    console.log(`${city} - e_${branch_id} - ${price}`);
 
     document.getElementsByClassName('currentMarket')[0].textContent = city + ': ' + price + "€";
 
@@ -364,7 +325,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
   } catch (error) {
     //console.log(error);
-    const apiResponse = {
+    const errorResponse = {
       branch_id,
       price: 'no price',
       market: city,
@@ -373,7 +334,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
       namespace: error.namespace,
       errorcode: error.errorcode,
     };
-    return apiResponse;
+    return errorResponse;
   }
 }
 
@@ -497,7 +458,7 @@ async function notifyBackgroundPage(input, payload) {
 }
 
 function handleResponse(message) {
-  //console.log(`2. BG: ${message.response}`);
+  console.log(`🍪: ${message.response}`);
 }
 
 function handleError(error) {
@@ -535,4 +496,4 @@ loadExpertTokens();
 addPreisDetektivToSite();
 setProgessbar(0);
 reloadTable();
-cookieInterceptor.init();
+fetchCashback(refUrl);

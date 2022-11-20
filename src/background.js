@@ -27,7 +27,7 @@ async function switchCookie(branch_id) {
   const d = new Date();
   d.setTime(d.getTime() + (2555 * 24 * 60 * 60 * 1000));
 
-  await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
+  //await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
   await browser.cookies.set({
     httpOnly: false,
     name: "fmarktcookie",
