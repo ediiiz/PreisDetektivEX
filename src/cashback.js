@@ -8,8 +8,8 @@ async function fetchCashback() {
   let myHeaders = {
     'X-Requested-With': 'XMLHttpRequest',
     'x-cors-headers': JSON.stringify({
-      'Host': 'www.expert.de',
-      'Origin': 'https://www.expert.de',
+      'Host': 'www.topcashback.de',
+      'Origin': 'https://www.topcashback.de',
       'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
     }),
   };
@@ -45,34 +45,35 @@ async function fetchCashback() {
   };
   response = await fetch(url, requestOptions);
   headers = JSON.parse(response.headers.get('cors-received-headers'))
-  //console.log(headers);
+  const redirect = `https://www.topcashback.de${response.headers.get('location')}`
+  console.log(redirect);
   data = await response.text();
-  // if (response.redirected) {
-  //   url = `${corsProxy}${response.url.replace(corsProxy, 'www.topcashback.de')}`;
-  //   myHeaders = {
-  //     'X-Requested-With': 'XMLHttpRequest',
-  //     'x-cors-headers': JSON.stringify({
-  //       'Access-Control-Allow-Origin': '*',
-  //       'Host': 'www.topcashback.de',
-  //       'Origin': 'https://www.topcashback.de',
-  //       'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
-  //       'Sec-fetch-mode': 'no-cors',
-  //       'Sec-fetch-site': 'cross-site',
-  //     }),
-  //   };
+  if (redirect) {
+    url = `${corsProxy}${redirect}`;
+    myHeaders = {
+      'X-Requested-With': 'XMLHttpRequest',
+      'x-cors-headers': JSON.stringify({
+        'Access-Control-Allow-Origin': '*',
+        'Host': 'www.topcashback.de',
+        'Origin': 'https://www.topcashback.de',
+        'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
+        'Sec-fetch-mode': 'no-cors',
+        'Sec-fetch-site': 'cross-site',
+      }),
+    };
 
-  //   requestOptions = {
-  //     headers: myHeaders,
-  //     redirect: 'follow',
-  //     method: 'post',
-  //   };
-  //   response = await fetch(url, requestOptions);
-  //   headers = JSON.parse(response.headers.get('cors-received-headers'))
-  //   data = await response.text();
-  //   document = new DOMParser().parseFromString(data, 'text/html');
-  //   const awin = document.querySelector('html body form#form1 div#pnlContainer.container div div#pnlMainContent div#show-redirect.continue div a#hypRedirectMerchant').href.toString();
-  //   console.log(awin);
-  // }
+    requestOptions = {
+      headers: myHeaders,
+      redirect: 'follow',
+      method: 'post',
+    };
+    response = await fetch(url, requestOptions);
+    headers = JSON.parse(response.headers.get('cors-received-headers'))
+    data = await response.text();
+    document = new DOMParser().parseFromString(data, 'text/html');
+    const awin = document.querySelector('html body form#form1 div#pnlContainer.container div div#pnlMainContent div#show-redirect.continue div a#hypRedirectMerchant').href.toString();
+    console.log(awin);
+  }
 
 }
 
