@@ -75,6 +75,9 @@ async function fetchCashback() {
     console.log(awin);
   }
 
+  // Fetcj AWIN URL and then store merchant url 
+  // Store Cookies from previos fetches
+
 }
 
 
