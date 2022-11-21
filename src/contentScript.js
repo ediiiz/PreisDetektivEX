@@ -1,5 +1,6 @@
 import { branches } from './branches.js';
 import { fetchCashback } from './cashback.js';
+import { getCookie, setCookie } from './helper.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -465,30 +466,6 @@ function handleError(error) {
   console.log(`Error: ${error}`);
 }
 
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
-async function setCookie({ cname, cvalue, exdays }) {
-  const d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  let expires = "expires=" + d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-
 
 /// Start
 
@@ -496,4 +473,4 @@ loadExpertTokens();
 addPreisDetektivToSite();
 setProgessbar(0);
 reloadTable();
-fetchCashback(refUrl);
+fetchCashback();
