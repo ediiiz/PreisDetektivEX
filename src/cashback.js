@@ -1,5 +1,7 @@
 
 import { setCookie, getCookie } from './helper';
+import cookie from 'cookie';
+
 
 async function fetchCashback() {
   const corsProxy = 'https://cashback.dztf.workers.dev/?'
@@ -45,7 +47,7 @@ async function fetchCashback() {
   };
   response = await fetch(url, requestOptions);
   headers = JSON.parse(response.headers.get('cors-received-headers'))
-  const redirect = `https://www.topcashback.de${response.headers.get('location')}`
+  let redirect = `https://www.topcashback.de${response.headers.get('location')}`
   console.log(redirect);
   data = await response.text();
   if (redirect) {
@@ -73,12 +75,41 @@ async function fetchCashback() {
     document = new DOMParser().parseFromString(data, 'text/html');
     const awin = document.querySelector('html body form#form1 div#pnlContainer.container div div#pnlMainContent div#show-redirect.continue div a#hypRedirectMerchant').href.toString();
     console.log(awin);
+
+    url = `${corsProxy}${awin}`;
+    myHeaders = {
+      'X-Requested-With': 'XMLHttpRequest',
+      'x-cors-headers': JSON.stringify({
+        'Access-Control-Allow-Origin': '*',
+        'Host': 'www.topcashback.de',
+        'Origin': 'https://www.topcashback.de',
+        'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
+        'Sec-fetch-mode': 'no-cors',
+        'Sec-fetch-site': 'cross-site',
+      }),
+    };
+
+    requestOptions = {
+      headers: myHeaders,
+      redirect: 'follow',
+      method: 'post',
+    };
+    response = await fetch(url, requestOptions);
+    headers = JSON.parse(response.headers.get('cors-received-headers'))
+
+    data = await response.text();
+    redirect = `${response.headers.get('location')}`
+    console.log(redirect);
+    let headersetcookie = headers['set-cookie'].split('e, ');
+    console.log((headersetcookie[0].split(';')));
   }
 
   // Fetcj AWIN URL and then store merchant url 
   // Store Cookies from previos fetches
 
 }
+
+
 
 
 export { fetchCashback };
