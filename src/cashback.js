@@ -1,5 +1,5 @@
 
-import { setCookie, getCookie } from './helper';
+import { setCookie, getCookie, notifyBackgroundPage } from './helper';
 
 function cookieParser(cookieString) {
   if (cookieString === "")
@@ -52,17 +52,22 @@ async function fetchCashback() {
   };
   let response = await fetch(url, requestOptions);
   let headers = JSON.parse(response.headers.get('cors-received-headers'))
-  //console.log(headers);
+  let parsedCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
   let data = await response.text();
   let document = new DOMParser().parseFromString(data, 'text/html');
   const earnCashback = document.querySelector('html body div.gecko-main.gecko-text-center div.gecko-single-container div.gecko-m15em div.cont-to-merch-wrapper a.gecko-btn-cont.gecko-btn-cont-primary').href.toString().replace('expert.de', 'topcashback.de');
   console.log(earnCashback);
-  console.log(parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g)));
+  console.log(parsedCookies);
+  await notifyBackgroundPage("switchCookie", { value: parsedCookies[0].cookieValue, url: 'topcashback.de', name: parsedCookies[0].cookieKey, exdays: 0 });
+  await notifyBackgroundPage("switchCookie", { value: parsedCookies[3].cookieValue, url: 'topcashback.de', name: parsedCookies[3].cookieKey, exdays: 30 });
+  await notifyBackgroundPage("switchCookie", { value: 'none', url: 'topcashback.de', name: 'InitialSiteReferrer', exdays: 30 });
+  await notifyBackgroundPage("switchCookie", { value: '/share/ED1Zx/expert-de', url: 'topcashback.de', name: 'InitialLandingPage', exdays: 30 });
 
   url = `${corsProxy}${earnCashback}`;
   myHeaders = {
     'X-Requested-With': 'XMLHttpRequest',
     'x-cors-headers': JSON.stringify({
+      'cookie': `InitialSiteReferrer=none; InitialLandingPage=/share/ED1Zx/expert-de; ${parsedCookies[0].cookieKey}=${parsedCookies[0].cookieValue}; ${parsedCookies[3].cookieKey}=${parsedCookies[3].cookieValue}`,
       'Host': 'www.topcashback.de',
       'Origin': 'https://www.topcashback.de',
       'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
@@ -131,11 +136,9 @@ async function fetchCashback() {
     data = await response.text();
     redirect = `${response.headers.get('location')}`
     console.log(redirect);
-    //let stcookie = cookieParser(headersetcookie[0]);
     console.log(parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g)));
   }
 
-  // Fetcj AWIN URL and then store merchant url 
   // Store Cookies from previos fetches
 
 }

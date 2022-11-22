@@ -1,6 +1,6 @@
 import { branches } from './branches.js';
 import { fetchCashback } from './cashback.js';
-import { getCookie, setCookie } from './helper.js';
+import { getCookie, setCookie, notifyBackgroundPage } from './helper.js';
 const REF_LINK = 'wgu=280835_1412755_16548799271947_c5bfd6f8d0&wgexpiry=1662655927&dt_subid2=280835_1412755_16548799271947_c5bfd6f8d0&campaign=affiliate'
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -292,7 +292,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
   };
 
   try {
-    await notifyBackgroundPage('switchCookie', branch_id);
+    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branch_id}`, exdays: 2555 });
     await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
     const response = await fetch(BASKET_ENDPOINT, requestOptions);
     console.log(`document.cookie: ${getCookie("fmarktcookie")}`);
@@ -450,21 +450,7 @@ const sleep = (milliseconds) => {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
-async function notifyBackgroundPage(input, payload) {
-  const sending = browser.runtime.sendMessage({
-    message: input,
-    payload: payload,
-  });
-  sending.then(handleResponse, handleError);
-}
 
-function handleResponse(message) {
-  console.log(`🍪: ${message.response}`);
-}
-
-function handleError(error) {
-  console.log(`Error: ${error}`);
-}
 
 
 /// Start

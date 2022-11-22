@@ -14,11 +14,33 @@ function getCookie(cname) {
   return "";
 }
 
-async function setCookie({ cname, cvalue, exdays }) {
+async function setCookie({ cname, cvalue, exdays = 0 }) {
   const d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
   let expires = "expires=" + d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  if (exdays === 0) {
+    document.cookie = `${cname}=${cvalue};path=/`;
+  } else {
+    document.cookie = `${cname}=${cvalue};${expires};path=/`;
+  }
+
 }
 
-export { getCookie, setCookie };
+async function notifyBackgroundPage(input, payload) {
+  const sending = browser.runtime.sendMessage({
+    message: input,
+    payload: payload,
+  });
+  sending.then(handleResponse, handleError);
+}
+
+function handleResponse(message) {
+  console.log(`🍪: ${message.response}`);
+}
+
+function handleError(error) {
+  console.log(`Error: ${error}`);
+}
+
+
+export { getCookie, setCookie, notifyBackgroundPage };
