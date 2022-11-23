@@ -65,28 +65,32 @@ async function fetchCashback() {
       value: tcShareCookies[0].cookieValue,
       url: 'topcashback.de',
       name: tcShareCookies[0].cookieKey,
-      exdays: 0
+      exdays: 0,
+      hostOnly: 1
     });
   await notifyBackgroundPage("switchCookie",
     {
       value: tcShareCookies[3].cookieValue,
       url: 'topcashback.de',
       name: tcShareCookies[3].cookieKey,
-      exdays: 30
+      exdays: 30,
+      hostOnly: 1
     });
   await notifyBackgroundPage("switchCookie",
     {
       value: 'none',
       url: 'topcashback.de',
       name: 'InitialSiteReferrer',
-      exdays: 30
+      exdays: 30,
+      hostOnly: 1
     });
   await notifyBackgroundPage("switchCookie",
     {
       value: '/share/ED1Zx/expert-de',
       url: 'topcashback.de',
       name: 'InitialLandingPage',
-      exdays: 30
+      exdays: 30,
+      hostOnly: 1
     });
   //////
 
@@ -119,14 +123,16 @@ async function fetchCashback() {
       value: earnCashbackCookies[1].cookieValue,
       url: 'topcashback.de',
       name: earnCashbackCookies[1].cookieKey,
-      exdays: 30
+      exdays: 30,
+      hostOnly: 1
     });
   await notifyBackgroundPage("switchCookie",
     {
       value: earnCashbackCookies[2].cookieValue,
       url: 'topcashback.de',
       name: earnCashbackCookies[2].cookieKey,
-      exdays: 0
+      exdays: 0,
+      hostOnly: 1
     });
   ///
 
@@ -197,7 +203,7 @@ async function fetchCashback() {
     ///
 
     data = await response.text();
-    redirect = response.headers.get('location')
+    redirect = response.headers.get('location').split('?')[1];
     console.log(redirect);
 
     return redirect;
