@@ -57,8 +57,8 @@ async function switchCookie({ value, url, name, exdays = 0 }) {
 
   // Get cookie from browser
   const cookies = await browser.cookies.get({
-    url: "https://www.expert.de",
-    name: "fmarktcookie"
+    url: `https://${url}/`,
+    name: name
   });
   return cookies;
 }

@@ -32,7 +32,11 @@
 
   "permissions": ["storage", "cookies"],
 
-  "host_permissions": ["*://*.expert.de/shop/*"],
+  "host_permissions": [
+    "*://*.expert.de/shop/*",
+    "*://*.topcashback.de/*",
+    "*://*.awin1.com/*"
+  ],
 
   "content_scripts": [
     {
