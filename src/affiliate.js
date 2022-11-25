@@ -1,21 +1,16 @@
 
-import { setCookie, getCookie, notifyBackgroundPage, generateCookieObject, parseAllCookies } from './helper';
+import { notifyBackgroundPage, generateCookieObject, parseAllCookies } from './helper';
 
 async function fetchCashback() {
   try {
-
-
     const corsProxy = 'https://cashback.dztf.workers.dev/?'
     const topcashbackShare = 'https://www.topcashback.de/share/ED1Zx/expert-de'
-    let url = `${corsProxy}${topcashbackShare}`;
-
     const xCorsHeaders = {
       'Host': 'www.topcashback.de',
       'Origin': 'https://www.topcashback.de',
-      'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
+      'Referer': topcashbackShare,
       'Access-Control-Allow-Origin': '*',
     }
-
     const myHeaders = {
       'X-Requested-With': 'XMLHttpRequest',
       'x-cors-headers': JSON.stringify(xCorsHeaders),
@@ -25,14 +20,13 @@ async function fetchCashback() {
       headers: myHeaders,
       redirect: 'follow',
       method: 'post',
-      body: null
     };
 
-    let response = await content.fetch(url, requestOptions);
+    let response = await content.fetch(`${corsProxy}${topcashbackShare}`, requestOptions);
     let headers = JSON.parse(response.headers.get('cors-received-headers'))
+    let data = await response.text();
     let tcShareCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
     const xCorsHeaders1 = await generateCookieObject({ CookieObjects: tcShareCookies, headers: xCorsHeaders });
-    let data = await response.text();
     let document = new DOMParser().parseFromString(data, 'text/html');
     const earnCashback = document.querySelector('html body div.gecko-main.gecko-text-center div.gecko-single-container div.gecko-m15em div.cont-to-merch-wrapper a.gecko-btn-cont.gecko-btn-cont-primary').href.toString().replace('expert.de', 'topcashback.de');
 
@@ -47,18 +41,11 @@ async function fetchCashback() {
         });
     }
 
-    url = `${corsProxy}${earnCashback}`;
-
+    ///  Request to earncashback.aspx to get redirect.aspx link
     myHeaders['x-cors-headers'] = JSON.stringify(xCorsHeaders1);
-
-    requestOptions = {
-      headers: myHeaders,
-      redirect: 'follow',
-      method: 'post',
-    };
-
-    response = await content.fetch(url, requestOptions);
+    response = await content.fetch(`${corsProxy}${earnCashback}`, requestOptions);
     headers = JSON.parse(response.headers.get('cors-received-headers'))
+    data = await response.text();
     let redirect = `https://www.topcashback.de${response.headers.get('location')}`
     let earnCashbackCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
     const xCorsHeaders2 = await generateCookieObject({ CookieObjects: earnCashbackCookies, headers: xCorsHeaders });
@@ -74,39 +61,24 @@ async function fetchCashback() {
         });
     }
 
-    data = await response.text();
     if (redirect) {
-
-      url = `${corsProxy}${redirect}`;
+      ///  Request to redirect to get awin1 link
       myHeaders['x-cors-headers'] = JSON.stringify(xCorsHeaders2);
-
-      requestOptions = {
-        headers: myHeaders,
-        redirect: 'follow',
-        method: 'post',
-      };
-
-      response = await content.fetch(url, requestOptions);
+      response = await content.fetch(`${corsProxy}${redirect}`, requestOptions);
       headers = JSON.parse(response.headers.get('cors-received-headers'))
       data = await response.text();
       document = new DOMParser().parseFromString(data, 'text/html');
       const awin = document.querySelector('html body form#form1 div#pnlContainer.container div div#pnlMainContent div#show-redirect.continue div a#hypRedirectMerchant').href.toString();
 
-      url = `${corsProxy}${awin}`;
 
+      /// Request to awin to get expert affiliate link
       myHeaders['x-cors-headers'] = JSON.stringify(xCorsHeaders);
 
-      requestOptions = {
-        headers: myHeaders,
-        redirect: 'follow',
-        method: 'post',
-      };
-
-      response = await content.fetch(url, requestOptions);
-      headers = JSON.parse(response.headers.get('cors-received-headers'))
+      response = await content.fetch(`${corsProxy}${awin}`, requestOptions);
+      headers = JSON.parse(response.headers.get('cors-received-headers'));
+      redirect = await response.headers.get('location').split('?')[1];
       let awin1Cookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
 
-      ///
       for (const x in awin1Cookies) {
         await notifyBackgroundPage("switchCookie",
           {
@@ -117,17 +89,12 @@ async function fetchCashback() {
             hostOnly: 0
           });
       }
-
-      data = await response.text();
-      redirect = await response.headers.get('location').split('?')[1];
-
       return redirect;
     }
 
   } catch (error) {
     console.log(error);
   }
-
 }
 
 export { fetchCashback };
