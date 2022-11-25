@@ -12,8 +12,6 @@ async function handleMessage(request, sender, sendResponse) {
   }
 }
 
-browser.runtime.onMessage.addListener(handleMessage);
-
 async function getCookie() {
   const cookies = await browser.cookies.get({
     url: "https://www.expert.de",
@@ -38,13 +36,15 @@ async function switchCookie({ value, url, name, exdays = 0, hostOnly = 0 }) {
   cookiesStore = hostOnly === 0 ? { ...cookiesStore, domain: url } : { ...cookiesStore };
   cookiesStore = exdays === 0 ? { ...cookiesStore } : { ...cookiesStore, expirationDate: d.valueOf() / 1000 };
   await browser.cookies.set(cookiesStore);
-  //await browser.cookies.remove({ url: "https://www.expert.de", name: "fmarktcookie" });
-
 
   // Get cookie from browser
-  const cookies = await browser.cookies.get({
-    url: `https://${url}/`,
+  let getCookieStore = {
     name: name
-  });
+  }
+
+  getCookieStore = hostOnly === 0 ? { ...getCookieStore, url: `https://${url}/` } : { ...getCookieStore, url: `https://www.${url}/` };
+  const cookies = await browser.cookies.get(getCookieStore);
   return cookies;
 }
+
+browser.runtime.onMessage.addListener(handleMessage);

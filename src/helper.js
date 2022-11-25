@@ -35,7 +35,7 @@ async function notifyBackgroundPage(input, payload) {
 }
 
 function handleResponse(message) {
-  console.log(`🍪: ${message.response}`);
+  //console.log(`🍪: ${message.response}`);
 }
 
 function handleError(error) {

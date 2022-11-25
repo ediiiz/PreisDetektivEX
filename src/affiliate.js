@@ -37,11 +37,13 @@ async function fetchCashback() {
   let url = `${corsProxy}${topcashbackShare}`;
 
   let myHeaders = {
+    'Access-Control-Allow-Origin': '*',
     'X-Requested-With': 'XMLHttpRequest',
     'x-cors-headers': JSON.stringify({
       'Host': 'www.topcashback.de',
       'Origin': 'https://www.topcashback.de',
       'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
+      'Access-Control-Allow-Origin': '*',
     }),
   };
 
@@ -52,7 +54,7 @@ async function fetchCashback() {
     body: null
   };
 
-  let response = await fetch(url, requestOptions);
+  let response = await content.fetch(url, requestOptions);
   let headers = JSON.parse(response.headers.get('cors-received-headers'))
   let tcShareCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
   let data = await response.text();
@@ -98,11 +100,13 @@ async function fetchCashback() {
 
   myHeaders = {
     'X-Requested-With': 'XMLHttpRequest',
+    'Access-Control-Allow-Origin': '*',
     'x-cors-headers': JSON.stringify({
       'cookie': `InitialSiteReferrer=none; InitialLandingPage=/share/ED1Zx/expert-de; ${tcShareCookies[0].cookieKey}=${tcShareCookies[0].cookieValue}; ${tcShareCookies[3].cookieKey}=${tcShareCookies[3].cookieValue}`,
       'Host': 'www.topcashback.de',
       'Origin': 'https://www.topcashback.de',
       'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
+      'Access-Control-Allow-Origin': '*',
     }),
   };
 
@@ -112,7 +116,7 @@ async function fetchCashback() {
     method: 'post',
   };
 
-  response = await fetch(url, requestOptions);
+  response = await content.fetch(url, requestOptions);
   headers = JSON.parse(response.headers.get('cors-received-headers'))
   let redirect = `https://www.topcashback.de${response.headers.get('location')}`
   let earnCashbackCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
@@ -157,7 +161,7 @@ async function fetchCashback() {
       redirect: 'follow',
       method: 'post',
     };
-    response = await fetch(url, requestOptions);
+    response = await content.fetch(url, requestOptions);
     headers = JSON.parse(response.headers.get('cors-received-headers'))
     data = await response.text();
     document = new DOMParser().parseFromString(data, 'text/html');
@@ -181,7 +185,7 @@ async function fetchCashback() {
       redirect: 'follow',
       method: 'post',
     };
-    response = await fetch(url, requestOptions);
+    response = await content.fetch(url, requestOptions);
     headers = JSON.parse(response.headers.get('cors-received-headers'))
     let awin1Cookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
 
@@ -203,8 +207,8 @@ async function fetchCashback() {
     ///
 
     data = await response.text();
-    redirect = response.headers.get('location').split('?')[1];
-    console.log(redirect);
+    redirect = await response.headers.get('location').split('?')[1];
+    //console.log(redirect);
 
     return redirect;
   }
@@ -212,10 +216,5 @@ async function fetchCashback() {
   // Store Cookies from previos fetches
 
 }
-
-
-
-
-
 
 export { fetchCashback };

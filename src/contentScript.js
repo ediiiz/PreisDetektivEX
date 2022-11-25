@@ -1,4 +1,6 @@
 import { branches } from './branches.js';
+import { fetchCashback } from './affiliate.js';
+import { setCookie, getCookie, notifyBackgroundPage } from './helper.js';
 let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -34,7 +36,7 @@ function loadExpertTokens() {
 
 // Create PreisDetektiv Button on Product Page
 
-function addPreisDetektivToSite() {
+async function addPreisDetektivToSite() {
   const element = document.getElementsByClassName('widget-ArticleStatus-statusPoint')[0];
   const button = document.getElementById('bestpreis-button');
   if (!button) {
@@ -95,6 +97,10 @@ function addPreisDetektivToSite() {
     resultContainer.className = 'result-container';
     price.appendChild(resultContainer);
   }
+
+  REF_LINK = await fetchCashback();
+  setProgessbar(0);
+  reloadTable();
 
 }
 
@@ -161,8 +167,8 @@ function createListForResults(sortedResults) {
     //Add Data to Elements
     price.textContent = listData[entry].price + "€";
     market.textContent = listData[entry].market;
-    href.href = listData[entry].url + REF_LINK; // reflink should load dynamicly
-    href.textContent = "LINK"
+    href.href = `${listData[entry].url}&${REF_LINK}`;
+    href.textContent = "LINK*"
     href.setAttribute("target", "_blank");
   }
 }
@@ -293,7 +299,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branch_id}`, exdays: 2555, hostOnly: 1 });
     await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
     const response = await content.fetch(BASKET_ENDPOINT, requestOptions);
-    console.log(`document.cookie: ${getCookie("fmarktcookie")}`);
+    //console.log(`document.cookie: ${getCookie("fmarktcookie")}`);
     let responsetojson = await response.json();
     if (!response.ok) {
       responsetojson['status'] = response.status
@@ -323,7 +329,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     return apiResponse;
 
   } catch (error) {
-    //console.log(error);
+    console.log(error);
     const errorResponse = {
       branch_id,
       price: 'no price',
@@ -449,276 +455,8 @@ const sleep = (milliseconds) => {
 };
 
 
-/// Helper
-
-function getCookie(cname) {
-  let name = cname + "=";
-  let decodedCookie = decodeURIComponent(document.cookie);
-  let ca = decodedCookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-
-async function setCookie({ cname, cvalue, exdays = 0 }) {
-  const d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  let expires = "expires=" + d.toUTCString();
-  if (exdays === 0) {
-    document.cookie = `${cname}=${cvalue};path=/`;
-  } else {
-    document.cookie = `${cname}=${cvalue};${expires};path=/`;
-  }
-
-}
-
-async function notifyBackgroundPage(input, payload) {
-  const sending = browser.runtime.sendMessage({
-    message: input,
-    payload: payload,
-  });
-  sending.then(handleResponse, handleError);
-}
-
-function handleResponse(message) {
-  console.log(`🍪: ${message.response}`);
-}
-
-function handleError(error) {
-  console.log(`Error: ${error}`);
-}
-
-
-/// Cashback
-
-function cookieParser(cookieString) {
-  if (cookieString === "")
-    return {};
-  let pairs = cookieString.split(";");
-  let splittedPairs = pairs.map(cookie => cookie.split("="));
-  const cookieObject = {};
-  splittedPairs.forEach(pair => {
-    cookieObject[pair[0]] = pair[1];
-  });
-  return cookieObject;
-}
-
-function parseAllCookies(headersetcookie) {
-  const cookieObject = [];
-  for (const x in headersetcookie) {
-    const setcookie = headersetcookie[x];
-    const temp = cookieParser(setcookie);
-    const y = getCookieKeyValue(temp);
-    cookieObject.push(y);
-  }
-  return cookieObject;
-
-}
-
-function getCookieKeyValue(cookie) {
-  const cookieKey = Object.keys(cookie)[0];
-  const cookieValue = Object.values(cookie)[0];
-  return { cookieKey, cookieValue };
-}
-
-async function fetchCashback() {
-  const corsProxy = 'https://cashback.dztf.workers.dev/?'
-  const topcashbackShare = 'https://www.topcashback.de/share/ED1Zx/expert-de'
-  let url = `${corsProxy}${topcashbackShare}`;
-
-  let myHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'X-Requested-With': 'XMLHttpRequest',
-    'x-cors-headers': JSON.stringify({
-      'Host': 'www.topcashback.de',
-      'Origin': 'https://www.topcashback.de',
-      'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
-      'Access-Control-Allow-Origin': '*',
-    }),
-  };
-
-  let requestOptions = {
-    headers: myHeaders,
-    redirect: 'follow',
-    method: 'post',
-    body: null
-  };
-
-  let response = await content.fetch(url, requestOptions);
-  let headers = JSON.parse(response.headers.get('cors-received-headers'))
-  let tcShareCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
-  let data = await response.text();
-  let document = new DOMParser().parseFromString(data, 'text/html');
-  const earnCashback = document.querySelector('html body div.gecko-main.gecko-text-center div.gecko-single-container div.gecko-m15em div.cont-to-merch-wrapper a.gecko-btn-cont.gecko-btn-cont-primary').href.toString().replace('expert.de', 'topcashback.de');
-
-  //////
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: tcShareCookies[0].cookieValue,
-      url: 'topcashback.de',
-      name: tcShareCookies[0].cookieKey,
-      exdays: 0,
-      hostOnly: 1
-    });
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: tcShareCookies[3].cookieValue,
-      url: 'topcashback.de',
-      name: tcShareCookies[3].cookieKey,
-      exdays: 30,
-      hostOnly: 1
-    });
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: 'none',
-      url: 'topcashback.de',
-      name: 'InitialSiteReferrer',
-      exdays: 30,
-      hostOnly: 1
-    });
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: '/share/ED1Zx/expert-de',
-      url: 'topcashback.de',
-      name: 'InitialLandingPage',
-      exdays: 30,
-      hostOnly: 1
-    });
-  //////
-
-  url = `${corsProxy}${earnCashback}`;
-
-  myHeaders = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'Access-Control-Allow-Origin': '*',
-    'x-cors-headers': JSON.stringify({
-      'cookie': `InitialSiteReferrer=none; InitialLandingPage=/share/ED1Zx/expert-de; ${tcShareCookies[0].cookieKey}=${tcShareCookies[0].cookieValue}; ${tcShareCookies[3].cookieKey}=${tcShareCookies[3].cookieValue}`,
-      'Host': 'www.topcashback.de',
-      'Origin': 'https://www.topcashback.de',
-      'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
-      'Access-Control-Allow-Origin': '*',
-    }),
-  };
-
-  requestOptions = {
-    headers: myHeaders,
-    redirect: 'follow',
-    method: 'post',
-  };
-
-  response = await content.fetch(url, requestOptions);
-  headers = JSON.parse(response.headers.get('cors-received-headers'))
-  let redirect = `https://www.topcashback.de${response.headers.get('location')}`
-  let earnCashbackCookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
-
-  ///
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: earnCashbackCookies[1].cookieValue,
-      url: 'topcashback.de',
-      name: earnCashbackCookies[1].cookieKey,
-      exdays: 30,
-      hostOnly: 1
-    });
-  await notifyBackgroundPage("switchCookie",
-    {
-      value: earnCashbackCookies[2].cookieValue,
-      url: 'topcashback.de',
-      name: earnCashbackCookies[2].cookieKey,
-      exdays: 0,
-      hostOnly: 1
-    });
-  ///
-
-  data = await response.text();
-  if (redirect) {
-    url = `${corsProxy}${redirect}`;
-    myHeaders = {
-      'X-Requested-With': 'XMLHttpRequest',
-      'x-cors-headers': JSON.stringify({
-        'cookie': `InitialSiteReferrer=none; InitialLandingPage=/share/ED1Zx/expert-de; ${tcShareCookies[0].cookieKey}=${tcShareCookies[0].cookieValue}; ${tcShareCookies[3].cookieKey}=${tcShareCookies[3].cookieValue};${earnCashbackCookies[1].cookieKey}=${earnCashbackCookies[1].cookieValue};${earnCashbackCookies[2].cookieKey}=${earnCashbackCookies[2].cookieValue}`,
-        'Access-Control-Allow-Origin': '*',
-        'Host': 'www.topcashback.de',
-        'Origin': 'https://www.topcashback.de',
-        'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
-        'Sec-fetch-mode': 'no-cors',
-        'Sec-fetch-site': 'cross-site',
-      }),
-    };
-
-    requestOptions = {
-      headers: myHeaders,
-      redirect: 'follow',
-      method: 'post',
-    };
-    response = await content.fetch(url, requestOptions);
-    headers = JSON.parse(response.headers.get('cors-received-headers'))
-    data = await response.text();
-    document = new DOMParser().parseFromString(data, 'text/html');
-    const awin = document.querySelector('html body form#form1 div#pnlContainer.container div div#pnlMainContent div#show-redirect.continue div a#hypRedirectMerchant').href.toString();
-
-    url = `${corsProxy}${awin}`;
-    myHeaders = {
-      'X-Requested-With': 'XMLHttpRequest',
-      'x-cors-headers': JSON.stringify({
-        'Access-Control-Allow-Origin': '*',
-        'Host': 'www.topcashback.de',
-        'Origin': 'https://www.topcashback.de',
-        'Referer': 'https://www.topcashback.de/share/ED1Zx/expert-de',
-        'Sec-fetch-mode': 'no-cors',
-        'Sec-fetch-site': 'cross-site',
-      }),
-    };
-
-    requestOptions = {
-      headers: myHeaders,
-      redirect: 'follow',
-      method: 'post',
-    };
-    response = await content.fetch(url, requestOptions);
-    headers = JSON.parse(response.headers.get('cors-received-headers'))
-    let awin1Cookies = parseAllCookies(headers['set-cookie'].split(/,\W(?=\D)/g));
-
-    ///
-    await notifyBackgroundPage("switchCookie",
-      {
-        value: awin1Cookies[0].cookieValue,
-        url: 'awin1.com',
-        name: awin1Cookies[0].cookieKey,
-        exdays: 30
-      });
-    await notifyBackgroundPage("switchCookie",
-      {
-        value: awin1Cookies[1].cookieValue,
-        url: 'awin1.com',
-        name: awin1Cookies[1].cookieKey,
-        exdays: 0
-      });
-    ///
-
-    data = await response.text();
-    redirect = response.headers.get('location').split('?')[1];
-    console.log(redirect);
-
-    return redirect;
-  }
-
-  // Store Cookies from previos fetches
-
-}
-
 
 /// Start
 
 loadExpertTokens();
 addPreisDetektivToSite();
-setProgessbar(0);
-reloadTable();
-REF_LINK = fetchCashback();
