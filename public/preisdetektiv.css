@@ -22,7 +22,6 @@
 }
 
 #bestpreis-button:hover {
-  transform: scale(1.025);
   background-color: #ff5e19;
 }
 
