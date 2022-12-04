@@ -101,10 +101,18 @@ async function addPreisDetektivToSite() {
   REF_LINK = await fetchCashback();
   setProgessbar(0);
   reloadTable();
-
+  //console.log(await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' }));
+  await fetchInteface();
 }
 
 /// Button Logic
+async function fetchInteface() {
+  const path = await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' })
+  const response = await fetch(path.url);
+  const html = await response.text();
+  // fetch the html and add it to the page
+  document.getElementById('bestpreis-overlay').innerHTML = html;
+}
 
 async function bestpreisButton() {
   //setDisplay('bestpreis-overlay', 'block');
@@ -460,3 +468,4 @@ const sleep = (milliseconds) => {
 
 loadExpertTokens();
 addPreisDetektivToSite();
+

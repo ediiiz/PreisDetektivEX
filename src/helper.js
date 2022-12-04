@@ -27,20 +27,15 @@ async function setCookie({ cname, cvalue, exdays = 0 }) {
 }
 
 async function notifyBackgroundPage(input, payload) {
-  const sending = browser.runtime.sendMessage({
-    message: input,
-    payload: payload,
-  });
-  sending.then(handleResponse, handleError);
-}
-
-function handleResponse(message) {
-  //console.log(`🍪: ${message.response}`);
-  //return message
-}
-
-function handleError(error) {
-  console.log(`Error: ${error}`);
+  try {
+    const sending = await browser.runtime.sendMessage({
+      message: input,
+      payload: payload,
+    });
+    return sending.response;
+  } catch (error) {
+    console.log(`Error: ${error}`);
+  }
 }
 
 function cookieParser(cookieString) {

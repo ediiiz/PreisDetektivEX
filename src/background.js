@@ -10,6 +10,11 @@ async function handleMessage(request, sender, sendResponse) {
     return Promise.resolve(
       { response: `Cookie = ${cookies.value}` });
   }
+  if (request.message === "getExtensionUrl") {
+    const url = await getExtensionUrl(request.payload.url);
+    return Promise.resolve(
+      { response: { url } });
+  }
 }
 
 async function getCookie() {
@@ -45,6 +50,11 @@ async function switchCookie({ value, url, name, exdays = 0, hostOnly = 0 }) {
   getCookieStore = hostOnly === 0 ? { ...getCookieStore, url: `https://${url}/` } : { ...getCookieStore, url: `https://www.${url}/` };
   const cookies = await browser.cookies.get(getCookieStore);
   return cookies;
+}
+
+async function getExtensionUrl(filename) {
+  const url = await browser.runtime.getURL(filename);
+  return url;
 }
 
 browser.runtime.onMessage.addListener(handleMessage);
