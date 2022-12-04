@@ -45,7 +45,7 @@
       "matches": ["*://*.expert.de/shop/*"],
       "run_at": "document_idle",
       "js": ["contentScript.js"],
-      "css": ["preisdetektiv.css"]
+      "css": ["preisdetektiv.css", "preisdetektivApp.css"]
     }
   ]
 }

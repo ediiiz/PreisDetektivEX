@@ -27,39 +27,6 @@ function groupByKey(array, key) {
 
 
 const grouped = groupByKey(obj, "name");
-// console.log(obj.filter(x => x.name.includes("klein")));
-
-
-//console.log(obj.length);
-//console.log(Object.keys(grouped));
-
-
-// function getNextMarket({ status = 200, bundleindex = 0, marketindex = 4 }) {
-//   // Check for initial request
-//   if (status === 200 && bundleindex === 0 && marketindex === 0) {
-//     console.log(grouped[Object.keys(grouped)[bundleindex]][marketindex]);
-//   } else {
-//     if (status != 200) {
-//       // If bundle length == 1 then it should also return the next bundle
-//       if (grouped[Object.keys(grouped)[bundleindex]].length === 1 || marketindex === grouped[Object.keys(grouped)[bundleindex]][marketindex].length) {
-//         bundleindex++;
-//         console.log(grouped[Object.keys(grouped)[bundleindex]]);
-
-//       } else {
-
-//         // If bundle length > 1 then it should return the next market
-//         marketindex++;
-//         console.log(grouped[Object.keys(grouped)[bundleindex]][marketindex]);
-
-//       }
-//     } else {
-
-//       bundleindex++;
-//       console.log(grouped[Object.keys(grouped)[bundleindex]][marketindex]);
-
-//     }
-//   }
-// }
 
 
 //getNextMarket({});

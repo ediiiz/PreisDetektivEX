@@ -5,7 +5,6 @@ let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
 let marketObjectsArray = [];
-const refUrl = 'https://www.topcashback.de/share/ED1Zx/expert-de';
 
 
 // Load needed data from the page
@@ -40,6 +39,12 @@ async function addPreisDetektivToSite() {
   const element = document.getElementsByClassName('widget-ArticleStatus-statusPoint')[0];
   const button = document.getElementById('bestpreis-button');
   if (!button) {
+    // Append to root
+    const rootOverlay = document.createElement('div');
+    rootOverlay.id = 'rootOverlay';
+    document.body.appendChild(rootOverlay);
+
+
     // Append Div to Site
     const div = document.createElement('div');
     div.className = 'widget-ArticleStatus-button-wrapper';
@@ -59,7 +64,7 @@ async function addPreisDetektivToSite() {
     overlay.id = 'bestpreis-overlay';
     element.appendChild(overlay);
     overlay.onclick = function () {
-      //overlayButton();
+      overlayButton();
     }
 
     // Append Progess Bar to Button
@@ -98,7 +103,7 @@ async function addPreisDetektivToSite() {
     price.appendChild(resultContainer);
   }
 
-  REF_LINK = await fetchCashback();
+  //REF_LINK = await fetchCashback();
   setProgessbar(0);
   reloadTable();
   //console.log(await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' }));
@@ -111,7 +116,10 @@ async function fetchInteface() {
   const response = await fetch(path.url);
   const html = await response.text();
   // fetch the html and add it to the page
-  document.getElementById('bestpreis-overlay').innerHTML = html;
+  document.getElementById('rootOverlay').innerHTML = html;
+  document.getElementById('closeButton').onclick = function () {
+    setDisplay('rootOverlay', 'none');
+  }
 }
 
 async function bestpreisButton() {
@@ -119,7 +127,8 @@ async function bestpreisButton() {
   // Send Runtime message to background.js to get the csrf_token
   removeResults();
   setDisplay('counter', 'block');
-  getExpertPrice();
+  setDisplay('rootOverlay', 'block');
+  //getExpertPrice();
 }
 
 function removeResults() {
@@ -131,7 +140,7 @@ function removeResults() {
 }
 
 function overlayButton() {
-  setDisplay('bestpreis-overlay', 'none');
+  setDisplay('rootOverlay', 'none');
   setDisplay('counter', 'none');
 }
 
