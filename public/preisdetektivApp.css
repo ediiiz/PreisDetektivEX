@@ -7,20 +7,23 @@
   bottom: 0;
   left: 0;
   background: rgba(0,0,0,0.5);
-  display: none;
+  display: block;
+  height: 0;
+  opacity: 0;
   z-index: 9999;
 }
 
 #popup {
   max-width: 600px;
   width: 80%;
-  max-height: 300px;
+  max-height: 600px;
   height: 80%;
   padding: 20px;
   position: relative;
-  background: #fff;
+  background: rgb(20, 20, 20);
   margin: 20px auto;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  border-radius: 5px;
 }
 
 #closeButton {
@@ -28,7 +31,7 @@
   top: 10px;
   right: 10px;
   cursor: pointer;
-  color: #000;
+  color: rgb(255, 255, 255);
 }
 
 
@@ -38,16 +41,21 @@
 
 
 #startButton {
+  margin-top: 30px;
   width: auto;
   height: auto; 
-  background-color: #ff5e19; 
-  color: white; 
+  background-color: #ffffff; 
+  color: rgb(13, 13, 13); 
   font-size: 20px; 
   border: none; 
-  border-radius: 5px;
+  padding: 10px 50px 10px 50px;
+  border-radius: 2px;
 }
 
-
+#startButton:hover {
+  background-color: #ff5e19;
+  transition: 0.6s;
+}
 
 #preisDetektivApp {
     display: flex;
@@ -56,5 +64,34 @@
     flex-direction: column;
     text-align: center;
     overflow: auto;
+}
+
+#resultContainer{
+  margin-top: 30px;
+  display: flex;
+  height: 350px;
+  overflow: auto;
+  background-color: rgb(49, 49, 49);
+  border-radius: 2px;
+  box-shadow: 0 0 5px rgb(49, 49, 49);
+}
+
+.resultTable {
+  font-size: 1.4em;
+}
+
+.resultTable td {
+  padding: 10px;
+  color: #fff;
+}
+
+.resultTable tr {
+  border-bottom: 1px solid rgb(23, 23, 23);
+}
+
+#affiliate {
+  margin-top: 30px;
+  font-size: 10px;
+  color: white;
 }
 
