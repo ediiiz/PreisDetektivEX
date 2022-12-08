@@ -1,60 +1,133 @@
-#rootOverlay {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0,0,0,0.5);
-  display: none;
+#sidebar {
+  position: fixed; /* Fixed position */
+  top: 0; /* Stick the sidebar to the top of the page */
+  bottom: 0; /* Make the sidebar the same height as the page */
+  right: 0; /* Position the sidebar off the right edge of the page */
+  width: 30%; /* Set the width of the sidebar */
+  max-width: 90%;
+  max-height: 80%;
+  padding: 10px; /* Some padding */
+  box-sizing: border-box; /* Add some box-sizing to make the height include the padding */
+  transition: all 0.3s ease; /* Add a transition to make the sidebar slide in and out smoothly */
+  z-index: 9998;
+  backdrop-filter: blur(15px);
+  margin: 20px 20px 20px 0px;
+  border-radius: 35px;
+  border-bottom-right-radius: 45px;
+  background-color: rgba(0, 0, 0, 0.8);/* Background color */
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5); /* Add a box shadow to the badge */
+}
+
+@media (max-width: 800px) {
+  /* Styles that are only applied when the width of the screen is less than 480 pixels */
+  #sidebar {
+    width: 100%; /* Make the sidebar the full width of the screen */
+    right: 0; /* Position the sidebar on the right edge of the screen */
+  }
+  #sidebar.open {
+    width: 0;
+  }
+  #resultTable td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #fff;
+    font-size: 1.1em;
+  }
+}
+
+@media (min-width: 800px) {
+  /* Styles that are only applied when the width of the screen is less than 480 pixels */
+  #sidebar {
+    width: 60%; /* Make the sidebar the full width of the screen */
+    right: 0; /* Position the sidebar on the right edge of the screen */
+  }
+  #sidebar.open {
+    width: 0;
+  }
+  #resultTable td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #fff;
+    font-size: 1.2em;
+  }
+}
+
+@media (min-width: 1150px) {
+  /* Styles that are only applied when the width of the screen is less than 480 pixels */
+  #sidebar {
+    width: 40%; /* Make the sidebar the full width of the screen */
+    right: 0; /* Position the sidebar on the right edge of the screen */
+  }
+  #sidebar.open {
+    width: 0;
+  }
+}
+
+#sidebar.open {
+  right: -35%; /* When the "open" class is added, slide the sidebar into view */
+}
+
+#badge {
+  position: fixed; /* Fixed position */
+  bottom: 20px; /* Position the badge 10 pixels from the top */
+  right: 20px; /* Position the badge 10 pixels from the right */
+  width: 80px; /* Set the width and height of the badge to 30 pixels */
+  height: 80px;
+  font-size: 50px; /* Set the font size of the close icon to 20 pixels */
+  line-height: 80px; /* Vertically center the close icon */
+  text-align: center; /* Center the close icon horizontally */
+  cursor: pointer; /* Change the cursor to a pointer when hovering over the badge */
+  color: white;
   z-index: 9999;
+  border-radius: 50%;
+  text-align: center;
+  transition: all 0.3s ease; /* Add a transition to animate the badge */
+  background-color: rgba(0, 0, 0, 0.8);/* Background color */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); /* Add a box shadow to the badge */
+  transform: scale(-1,1);
 }
 
-#popup {
-  max-width: 600px;
-  width: 80%;
-  max-height: 300px;
-  height: 80%;
-  padding: 20px;
-  position: relative;
-  background: #fff;
-  margin: 20px auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+#badge:active {
+  transform: scale(-0.8, 0.8); /* When the badge is clicked, scale it up to 1.1 times its original size */
 }
-
-#closeButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  color: #000;
-}
-
-
-#mainTitle {
-    font-size: 45px;
-}
-
-
-#startButton {
-  width: auto;
-  height: auto; 
-  background-color: #ff5e19; 
-  color: white; 
-  font-size: 20px; 
-  border: none; 
-  border-radius: 5px;
-}
-
-
 
 #preisDetektivApp {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  overflow: auto;
+  margin: 0;
 }
 
+#resultContainer{
+  margin: 0;
+  margin-top: 30px;
+  display: flex;
+  height: 450px;
+  overflow: auto;
+}
+
+#resultTable td {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: #fff;
+  font-size: 1.2em;
+}
+
+#resultTable tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.227);
+}
+
+#affiliate {
+  margin-top: 10px;
+  font-size: 10px;
+  color: white;
+}

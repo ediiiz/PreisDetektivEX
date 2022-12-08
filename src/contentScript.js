@@ -1,6 +1,7 @@
 import { branches } from './branches.js';
 import { fetchCashback } from './affiliate.js';
 import { setCookie, getCookie, notifyBackgroundPage } from './helper.js';
+import { generateUI } from './UI.js';
 let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
@@ -117,9 +118,8 @@ async function fetchInteface() {
   const html = await response.text();
   // fetch the html and add it to the page
   document.getElementById('rootOverlay').innerHTML = html;
-  document.getElementById('closeButton').onclick = function () {
-    setDisplay('rootOverlay', 'none');
-  }
+  // add the event listeners
+  generateUI();
 }
 
 async function bestpreisButton() {
