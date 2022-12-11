@@ -37,78 +37,14 @@ function loadExpertTokens() {
 // Create PreisDetektiv Button on Product Page
 
 async function addPreisDetektivToSite() {
-  const element = document.getElementsByClassName('widget-ArticleStatus-statusPoint')[0];
-  const button = document.getElementById('bestpreis-button');
-  if (!button) {
-    // Append to root
-    const rootOverlay = document.createElement('div');
-    rootOverlay.id = 'rootOverlay';
-    document.body.appendChild(rootOverlay);
-
-
-    // Append Div to Site
-    const div = document.createElement('div');
-    div.className = 'widget-ArticleStatus-button-wrapper';
-    element.appendChild(div);
-
-    // Append Button to Site and restyle it
-    const button = document.createElement('button');
-    button.textContent = '💸 Expert Bestpreis finden';
-    button.id = 'bestpreis-button';
-    div.appendChild(button);
-    button.onclick = function () {
-      bestpreisButton();
-    }
-
-    // Add Overlay to Site
-    const overlay = document.createElement('div');
-    overlay.id = 'bestpreis-overlay';
-    element.appendChild(overlay);
-    overlay.onclick = function () {
-      overlayButton();
-    }
-
-    // Append Progess Bar to Button
-    const counters = document.createElement('div');
-    counters.id = 'counter';
-    counters.className = 'counters';
-
-    button.appendChild(counters);
-    const progress = document.createElement('div');
-    progress.className = 'Progressbar';
-    counters.appendChild(progress);
-
-    const progressbar_value = document.createElement('div');
-    progressbar_value.className = 'Progressbar__value';
-    progress.appendChild(progressbar_value);
-
-    const value = document.createElement('progress');
-    value.value = 0;
-    value.max = 100;
-    value.textContent = '100%';
-    progress.appendChild(value);
-
-    //Append currentMarket to Counter
-    const currentMarket = document.createElement('div');
-    const label = document.createElement('label');
-    const paragraph = document.createElement('p');
-    paragraph.className = 'currentMarket';
-    counters.appendChild(currentMarket);
-    currentMarket.appendChild(label);
-    label.appendChild(paragraph);
-
-    //Append resultContainer to Price
-    const price = document.getElementsByClassName('widget-ArticlePrice')[0];
-    const resultContainer = document.createElement('div');
-    resultContainer.className = 'result-container';
-    price.appendChild(resultContainer);
-  }
+  const rootOverlay = document.createElement('div');
+  rootOverlay.id = 'rootOverlay';
+  document.body.appendChild(rootOverlay);
 
   //REF_LINK = await fetchCashback();
-  setProgessbar(0);
-  reloadTable();
   //console.log(await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' }));
   await fetchInteface();
+  reloadTable();
 }
 
 /// Button Logic
@@ -160,30 +96,26 @@ async function reloadTable() {
 
 function createListForResults(sortedResults) {
   let listData = sortedResults
-  let table = document.createElement('table')
-  table.classList.add("zui-table")
-  let tbody = document.createElement('tbody')
+  let mainDiv = document.createElement('div')
+  mainDiv.id = 'resultTable'
+  const resultContainer = document.getElementById('resultContainer');
+  resultContainer.appendChild(mainDiv);
   for (const entry in listData) {
     // Create new Elements
-    let href = document.createElement('a')
-    let tr = document.createElement('tr')
-    let market = document.createElement('td');
-    let price = document.createElement('td');
-    let url = document.createElement('td');
-    const body = document.getElementsByClassName('result-container')[0];
+    const priceDiv = document.createElement('div')
+    const marketDiv = document.createElement('div')
+    const urlDiv = document.createElement('div')
+    const href = document.createElement('a')
 
-    //Add Elements to DOM
-    body.appendChild(table);
-    table.appendChild(tbody);
-    tbody.appendChild(tr);
-    tr.appendChild(price);
-    tr.appendChild(market);
-    tr.appendChild(url);
-    url.appendChild(href);
+    //append div to mainDiv 
+    mainDiv.appendChild(priceDiv)
+    mainDiv.appendChild(marketDiv)
+    mainDiv.appendChild(urlDiv)
+    urlDiv.appendChild(href)
 
     //Add Data to Elements
-    price.textContent = listData[entry].price + "€";
-    market.textContent = listData[entry].market;
+    priceDiv.textContent = listData[entry].price + "€";
+    marketDiv.textContent = listData[entry].market;
     href.href = `${listData[entry].url}&${REF_LINK}`;
     href.textContent = "LINK*"
     href.setAttribute("target", "_blank");
