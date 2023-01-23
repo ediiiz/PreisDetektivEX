@@ -1,23 +1,32 @@
-
-
-
 #badge {
   position: fixed; /* Fixed position */
-  bottom: 20px; /* Position the badge 10 pixels from the top */
-  right: 20px; /* Position the badge 10 pixels from the right */
-  width: 125px; /* Set the width and height of the badge to 30 pixels */
-  height: 125px;
-  font-size: 50px; /* Set the font size of the close icon to 20 pixels */
-  line-height: 125px; /* Vertically center the close icon */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 0; /* Position the badge 10 pixels from the top */
+  left: 0; /* Position the badge 10 pixels from the right */
+  width: 10rem; /* Set the width and height of the badge to 30 pixels */
+  height: 5rem;
+  font-size: 3rem; /* Set the font size of the close icon to 20 pixels */
+  line-height: 5rem; /* Vertically center the close icon */
   text-align: center; /* Center the close icon horizontally */
   cursor: pointer; /* Change the cursor to a pointer when hovering over the badge */
   color: white;
   z-index: 9999;
-  border-radius: 50%;
   text-align: center;
   transition: all 0.3s ease; /* Add a transition to animate the badge */
-  background-color: rgba(0, 0, 0, 0.911);/* Background color */
-  box-shadow: 0 0 30px rgb(0, 0, 0); /* Add a box shadow to the badge */
+  background-color: transparent;
+  width: 100%;
+}
+
+#toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ff5e19;
+  padding: 0 2rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 :root {
@@ -39,42 +48,30 @@
   --main-mobile-border-style: solid;
 }
 
-
-
-
-
 #sidebar {
   position: fixed; /* Fixed position */
-  top: 1.2rem; /* Stick the sidebar to the top of the page */
-  bottom: 1.2rem; /* Make the sidebar the same height as the page */
-  right: 1.2rem; /* Position the sidebar off the right edge of the page */
-  max-width: 30%;
-  max-height: 80%;
-  box-sizing: border-box; /* Add some box-sizing to make the height include the padding */
+  top: 0rem; /* Stick the sidebar to the top of the page */
+  bottom: 0rem;
+  width: 100%; /* Set the width of the sidebar to 0 */
   transition: all 0.3s ease; /* Add a transition to make the sidebar slide in and out smoothly */
   z-index: 500;
   backdrop-filter: blur(15px);
-  border-radius: 1.1rem;
-  background-color: rgba(0, 0, 0, 0.925);/* Background color */
+  background-color: rgba(0, 0, 0, 0.925); /* Background color */
   box-shadow: 0 0 40px rgb(0, 0, 0); /* Add a box shadow to the badge */
   font-family: 'Courier New', monospace;
-  min-width: 500px;
-  min-height: 900px;
-}
-
-@media screen and (max-width: 600px) {
-  #sidebar {
-    max-width: 95%; /* Set the width of the sidebar */
-    min-width: 360px;
-  }
+  min-height: 800px;
 }
 
 #sidebar.open {
   opacity: 0;
+  display: none;
 }
 
 #badge:active {
-  transform: scale(0.8, 0.8); /* When the badge is clicked, scale it up to 1.1 times its original size */
+  transform: scale(
+    0.8,
+    0.8
+  ); /* When the badge is clicked, scale it up to 1.1 times its original size */
 }
 
 #startButton {
@@ -151,14 +148,14 @@ button {
 #resultContainer {
   height: 100%;
   max-height: 100%;
-  min-height: 0;  /* NEW */
-  min-width: 0;  
+  min-height: 0; /* NEW */
+  min-width: 0;
   width: 100%;
 }
 
 #resultTable {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-columns: 1fr 1fr 1fr;
   scrollbar-width: none; /* Hide the default scrollbar */
   scrollbar-color: transparent transparent; /* Create a new, invisible scrollbar */
   height: 100%;
@@ -167,7 +164,6 @@ button {
   z-index: 505;
   border-bottom: #ffffff 2px solid;
 }
-
 
 #resultTable::-webkit-scrollbar {
   width: 0;
@@ -183,12 +179,11 @@ button {
   color: white;
   font-size: var(--main-desktop-font-size);
   z-index: 505;
-  
 }
 
 #resultHeading {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-columns: 1fr 1fr 1fr;
   border-top: #ffffff 2px solid;
   border-bottom: #ffffff 2px solid;
 }
@@ -211,10 +206,9 @@ button {
   text-decoration: none;
   z-index: 500;
   padding: 1rem;
-  font-size: var(--secondary-desktop-font-size);
+  font-size: 1rem;
   padding-bottom: 1rem;
 }
-
 
 #sidebar::-webkit-scrollbar {
   width: 0;

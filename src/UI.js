@@ -26,6 +26,7 @@ function generateUI() {
       badge.classList.remove("active");
     }, 2000);
   });
+
 }
 
 export { generateUI };

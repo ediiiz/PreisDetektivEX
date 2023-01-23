@@ -40,6 +40,8 @@
     "*://*.awin1.com/*"
   ],
 
+  "content_security_policy": "script-src 'self' https://.google.com https://.gstatic.com; object-src 'self'",
+
   "content_scripts": [
     {
       "matches": ["*://*.expert.de/shop/*"],

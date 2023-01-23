@@ -37,6 +37,9 @@ function loadExpertTokens() {
 // Create PreisDetektiv Button on Product Page
 
 async function addPreisDetektivToSite() {
+  const script = document.createElement("script");
+  script.src = "https://www.google.com/recaptcha/api.js?render=6LdjgBokAAAAADvZloidoTl7v_5-EUKhz3vp8TMU";
+  document.head.appendChild(script);
   const rootOverlay = document.createElement('div');
   rootOverlay.id = 'rootOverlay';
   document.body.appendChild(rootOverlay);
@@ -56,16 +59,25 @@ async function fetchInteface() {
   document.getElementById('rootOverlay').innerHTML = html;
   // add the event listeners
   generateUI();
+
+  // Add the captcha script
+  const captchaPath = await notifyBackgroundPage('getExtensionUrl', { url: 'recaptcha.js' })
+  const script = document.createElement("script");
+  script.src = captchaPath.url;
+  document.head.appendChild(script);
 }
 
 async function bestpreisButton() {
   //setDisplay('bestpreis-overlay', 'block');
   // Send Runtime message to background.js to get the csrf_token
-  removeResults();
-  setDisplay('counter', 'block');
-  setDisplay('rootOverlay', 'block');
+  console.log('Button clicked');
+  //removeResults();
+  //setDisplay('counter', 'block');
+  //setDisplay('rootOverlay', 'block');
   //getExpertPrice();
 }
+
+exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 
 function removeResults() {
   try {

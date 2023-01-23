@@ -3,7 +3,6 @@
 const SizePlugin = require('size-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WebpackObfuscator = require('webpack-obfuscator');
 
 const PATHS = require('./paths');
 
@@ -44,18 +43,6 @@ const common = {
           },
         ],
       },
-      {
-        test: /\.js$/,
-        exclude: [
-        ],
-        enforce: 'post',
-        use: {
-          loader: WebpackObfuscator.loader,
-          options: {
-            rotateStringArray: true
-          }
-        }
-      },
     ],
   },
   plugins: [
@@ -73,9 +60,6 @@ const common = {
     // Extract CSS into separate files
     new MiniCssExtractPlugin({
       filename: '[name].css',
-    }),
-    new WebpackObfuscator({
-      rotateStringArray: true
     }),
   ],
 };
