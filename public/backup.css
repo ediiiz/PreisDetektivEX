@@ -1,0 +1,175 @@
+#startButton {
+  font-size: var(--main-desktop-font-size);
+  padding: 1rem;
+  width: 100%;
+}
+
+#startButton:hover {
+  color: black;
+  background-color: white;
+}
+
+#startButton:active {
+  color: black;
+  background-color: white;
+}
+
+#resultTable > div > a:active {
+  color: black;
+  background-color: white;
+}
+
+#resultTable > div > a:hover {
+  color: black;
+  background-color: white;
+}
+
+#resultTable > div > a:active {
+  color: black;
+  background-color: white;
+}
+
+button {
+  border: 2px solid #ffffff;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font: inherit;
+  font-size: var(--main-desktop-font-size);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#resultTable > div > a {
+  border: 2px solid #ffffff;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0);
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font: inherit;
+  font-size: var(--main-desktop-font-size);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 5px;
+}
+
+#preisDetektivApp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  max-height: 100%;
+  min-height: 550px;
+  right: 0;
+}
+
+#resultContainer {
+  height: 100%;
+  max-height: 100%;
+  min-height: 650px; /* NEW */
+  min-width: 0;
+  width: 100%;
+}
+
+#resultTable {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 100%;
+  overflow: auto;
+  max-height: 90%; /* Set the maximum height of the child element to 100% of the parent element */
+  z-index: 505;
+  border-bottom: #ffffff 2px solid;
+}
+
+#resultTable::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+#resultTable > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2px;
+  padding: 1rem;
+  color: white;
+  font-size: var(--main-desktop-font-size);
+  z-index: 505;
+}
+
+#resultHeading {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: #ffffff 2px solid;
+  border-bottom: #ffffff 2px solid;
+}
+
+#resultHeading > div {
+  display: grid;
+  place-items: center;
+  margin: 2px;
+  padding: 1rem;
+  color: white;
+  font-size: var(--main-desktop-font-size);
+  z-index: 505;
+}
+
+#affiliate {
+  color: white;
+  text-decoration: none;
+  z-index: 500;
+  padding: 1rem;
+  font-size: 1.2rem;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+#infoContainer {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  overflow: auto;
+}
+
+#actionContainer {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  place-content: center;
+}
+
+#closeContainer {
+  width: auto;
+  display: flex;
+  justify-content: flex-end;
+  height: 100px;
+}
+
+#currentMarket {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: var(--main-desktop-font-size);
+  transition: all 0.5s ease;
+}
+
+#currentMarket.inactive {
+  height: 0%;
+  opacity: 0%;
+}
+
+#currentMarket.active {
+  height: 100%;
+  opacity: 100%;
+  padding: 1rem;
+  margin: 1rem;
+}

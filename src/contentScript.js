@@ -81,7 +81,7 @@ exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 
 function removeResults() {
   try {
-    document.getElementsByClassName('zui-table')[0].remove();
+    document.getElementById('resultTable').remove();
   } catch (error) {
     console.log('No table to remove');
   }
@@ -277,7 +277,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
     const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
 
-    document.getElementsByClassName('currentMarket')[0].textContent = city + ': ' + price + "€";
+    document.getElementById('currentMarket').textContent = `${city}: ${price}€`;
 
     const apiResponse = {
       branch_id,

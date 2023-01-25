@@ -1,51 +1,58 @@
+* {
+  outline: 0px solid green;
+}
+
 #badge {
   position: fixed; /* Fixed position */
-  display: flex;
+  display: grid;
   justify-content: center;
   align-items: center;
-  bottom: 0; /* Position the badge 10 pixels from the top */
-  left: 0; /* Position the badge 10 pixels from the right */
-  width: 10rem; /* Set the width and height of the badge to 30 pixels */
-  height: 5rem;
-  font-size: 3rem; /* Set the font size of the close icon to 20 pixels */
-  line-height: 5rem; /* Vertically center the close icon */
+  place-content: center;
+  place-items: center;
+  bottom: 20px; /* Position the badge 10 pixels from the top */
+  left: calc(50vw - 2.5rem); /* Position the badge 10 pixels from the right */
+  font-size: 4rem; /* Set the font size of the close icon to 20 pixels */
   text-align: center; /* Center the close icon horizontally */
   cursor: pointer; /* Change the cursor to a pointer when hovering over the badge */
   color: white;
-  z-index: 9999;
   text-align: center;
   transition: all 0.3s ease; /* Add a transition to animate the badge */
   background-color: transparent;
-  width: 100%;
 }
 
-#toggle {
+#toggleOpen {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ff5e19;
-  padding: 0 2rem;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
 }
 
-:root {
-  --main-bg-color: #000000;
-  --main-desktop-font-size: 2rem;
-  --main-mobile-font-size: 1rem;
-  --secondary-desktop-font-size: 0.8rem;
-  --main-desktop-line-height: 3.5rem;
-  --main-mobile-line-height: 2.5rem;
-  --main-desktop-padding: 1rem;
-  --main-mobile-padding: 0.5rem;
-  --main-desktop-border-radius: 1.1rem;
-  --main-mobile-border-radius: 0.5rem;
-  --main-desktop-border-width: 2px;
-  --main-mobile-border-width: 1px;
-  --main-desktop-border-color: #ffffff;
-  --main-mobile-border-color: #ffffff;
-  --main-desktop-border-style: solid;
-  --main-mobile-border-style: solid;
+#toggleClose {
+  position: relative;
+  top: 0;
+  right: 10px;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  place-items: center;
+  color: white;
+  font-size: 4rem;
+  border-radius: 5px;
+  background-color: transparent;
+  width: 5rem;
+  margin: 1.8rem 1.8rem 0 1.8rem;
+  transition: all 0.3s ease; /* Add a transition to animate the badge */
+}
+
+#toggleClose:active {
+  transform: scale(
+    0.95,
+    0.95
+  ); /* When the badge is clicked, scale it up to 1.1 times its original size */
+}
+
+#toggleClose:hover {
+  cursor: pointer;
+  color: lightgray;
 }
 
 #sidebar {
@@ -54,17 +61,16 @@
   bottom: 0rem;
   width: 100%; /* Set the width of the sidebar to 0 */
   transition: all 0.3s ease; /* Add a transition to make the sidebar slide in and out smoothly */
-  z-index: 500;
   backdrop-filter: blur(15px);
   background-color: rgba(0, 0, 0, 0.925); /* Background color */
   box-shadow: 0 0 40px rgb(0, 0, 0); /* Add a box shadow to the badge */
-  font-family: 'Courier New', monospace;
-  min-height: 800px;
+  min-height: 600px;
+  opacity: 100;
+  z-index: 9999;
 }
 
-#sidebar.open {
+#sidebar.close {
   opacity: 0;
-  display: none;
 }
 
 #badge:active {
@@ -74,143 +80,11 @@
   ); /* When the badge is clicked, scale it up to 1.1 times its original size */
 }
 
-#startButton {
-  margin: 1.8rem;
-  font-size: var(--main-desktop-font-size);
-  padding: 1rem;
+#wrapper {
+  z-index: 9999;
+  height: 900px;
 }
 
-#startButton:hover {
-  color: black;
-  background-color: white;
-}
-
-#startButton:active {
-  color: black;
-  background-color: white;
-}
-
-#resultTable > div > a:active {
-  color: black;
-  background-color: white;
-}
-
-#resultTable > div > a:hover {
-  color: black;
-  background-color: white;
-}
-
-#resultTable > div > a:active {
-  color: black;
-  background-color: white;
-}
-
-button {
-  border: 2px solid #ffffff;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font: inherit;
-  font-size: var(--main-desktop-font-size);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-#resultTable > div > a {
-  border: 2px solid #ffffff;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0);
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font: inherit;
-  font-size: var(--main-desktop-font-size);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 5px;
-}
-
-#preisDetektivApp {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  max-height: 100%;
-  min-height: 550px;
-  right: 0;
-}
-
-#resultContainer {
-  height: 100%;
-  max-height: 100%;
-  min-height: 0; /* NEW */
-  min-width: 0;
-  width: 100%;
-}
-
-#resultTable {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  scrollbar-width: none; /* Hide the default scrollbar */
-  scrollbar-color: transparent transparent; /* Create a new, invisible scrollbar */
-  height: 100%;
-  overflow: auto;
-  max-height: 80%; /* Set the maximum height of the child element to 100% of the parent element */
-  z-index: 505;
-  border-bottom: #ffffff 2px solid;
-}
-
-#resultTable::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-#resultTable > div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 2px;
-  padding: 1rem;
-  color: white;
-  font-size: var(--main-desktop-font-size);
-  z-index: 505;
-}
-
-#resultHeading {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  border-top: #ffffff 2px solid;
-  border-bottom: #ffffff 2px solid;
-}
-
-#resultHeading > div {
-  display: grid;
-  place-items: center;
-  margin: 2px;
-  padding: 1rem;
-  color: white;
-  font-size: var(--main-desktop-font-size);
-  z-index: 505;
-}
-
-#affiliate {
-  margin-top: 1rem;
-  position: fixed;
-  bottom: 0;
-  color: white;
-  text-decoration: none;
-  z-index: 500;
-  padding: 1rem;
-  font-size: 1rem;
-  padding-bottom: 1rem;
-}
-
-#sidebar::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+#footer {
+  z-index: 9999;
 }

@@ -10,7 +10,7 @@
     "128": "icons/icon_128.png"
   },
 
-  "web_accessible_resources": ["preisdetektiv.html"],
+  "web_accessible_resources": ["preisdetektiv.html", "recaptcha.js"],
 
   "browser_specific_settings": {
     "gecko": {
@@ -47,7 +47,7 @@
       "matches": ["*://*.expert.de/shop/*"],
       "run_at": "document_idle",
       "js": ["contentScript.js"],
-      "css": ["preisdetektiv.css", "preisdetektivApp.css"]
+      "css": ["preisdetektivApp.css"]
     }
   ]
 }
