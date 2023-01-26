@@ -1,5 +1,5 @@
 function generateUI() {
-  var sidebar = document.getElementById("sidebar");
+  var sidebar = document.getElementById("wrapper");
 
   // Add a click event listener to the badge
   document.getElementById("badge").addEventListener("click", function () {

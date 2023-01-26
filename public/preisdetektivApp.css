@@ -5,6 +5,7 @@
 #badge {
   position: fixed; /* Fixed position */
   display: grid;
+  bottom: 10px;
   justify-content: center;
   align-items: center;
   place-content: center;
@@ -26,65 +27,16 @@
   align-items: center;
 }
 
-#toggleClose {
-  position: relative;
-  top: 0;
-  right: 10px;
-  display: grid;
-  justify-content: center;
-  align-items: center;
-  place-items: center;
-  color: white;
-  font-size: 4rem;
-  border-radius: 5px;
-  background-color: transparent;
-  width: 5rem;
-  margin: 1.8rem 1.8rem 0 1.8rem;
-  transition: all 0.3s ease; /* Add a transition to animate the badge */
-}
-
-#toggleClose:active {
-  transform: scale(
-    0.95,
-    0.95
-  ); /* When the badge is clicked, scale it up to 1.1 times its original size */
-}
-
-#toggleClose:hover {
-  cursor: pointer;
-  color: lightgray;
-}
-
-#sidebar {
-  position: fixed; /* Fixed position */
-  top: 0rem; /* Stick the sidebar to the top of the page */
-  bottom: 0rem;
-  width: 100%; /* Set the width of the sidebar to 0 */
-  transition: all 0.3s ease; /* Add a transition to make the sidebar slide in and out smoothly */
-  backdrop-filter: blur(15px);
-  background-color: rgba(0, 0, 0, 0.925); /* Background color */
-  box-shadow: 0 0 40px rgb(0, 0, 0); /* Add a box shadow to the badge */
-  min-height: 600px;
-  opacity: 100;
-  z-index: 9999;
-}
-
-#sidebar.close {
+#wrapper.close {
   opacity: 0;
-}
-
-#badge:active {
-  transform: scale(
-    0.8,
-    0.8
-  ); /* When the badge is clicked, scale it up to 1.1 times its original size */
+  top: -2000px;
 }
 
 #wrapper {
-  z-index: 9999;
+  z-index: 21;
   height: 900px;
 }
 
 #footer {
-  z-index: 9999;
+  z-index: 21;
 }
