@@ -53,60 +53,27 @@
     id="subWrapper"
     class="text-white flex flex-col h-full place-content-between pb-20"
   >
-    <div id="one" class="flex-none flex-grow h-full">
-      <div
-        id="startButton"
-        class="flex flex-row place-content-center p-8 h-20 m-10"
-      >
+    <div id="appWrapper" class="flex-none flex-grow h-full">
+      <div class="flex flex-row place-content-center p-8 h-20 m-10">
         <div
-          class="btn btn-wide btn-square btn-block btn-primary text-4xl h-20 max-w-4xl"
+          id="startButton"
+          class="btn btn-wide btn-square btn-block text-4xl h-20 max-w-4xl bg-transparent z-20"
         >
-          Suchen
-        </div>
-      </div>
-      <div class="overflow-auto max-h-full">
-        <div
-          id="results"
-          class="grid grid-cols-1 auto-cols-auto place-content-start place-items-center gap-8 p-4 m-4"
-        >
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
-          </div>
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
-          </div>
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
-          </div>
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
-          </div>
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
-          </div>
-          <div class="w-full bg-gray-900 rounded-lg max-w-5xl">
-            <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-              <div>Haendler</div>
-              <a href="" class="btn btn-block text-2xl h-20">100€*</a>
-            </div>
+          <progress
+            id="progressBar"
+            class="relative top-0 left-0 z-10 w-full h-full rounded-md transition-all ease-in-out duration-150"
+            value="0"
+            max="100"
+          ></progress>
+          <div
+            id="currentMarket"
+            class="relative text-black bottom-14 z-30 rounded-lg"
+          >
+            Suchen
           </div>
         </div>
       </div>
+      <div id="resultsWrapper" class="overflow-auto max-h-full"></div>
     </div>
   </div>
   <div

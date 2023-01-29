@@ -39,15 +39,6 @@ function generateUI() {
       }, 300);
     }
   });
-
-  let currentMarket = document.getElementById("currentMarket");
-
-  document.getElementById("startButton").addEventListener("click", function () {
-    if (currentMarket.classList.contains("inactive")) {
-      currentMarket.classList.remove("inactive");
-      currentMarket.classList.add("active");
-    }
-  });
 }
 
 function setDisplay(Id, attr) {

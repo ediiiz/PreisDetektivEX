@@ -8,7 +8,7 @@ async function handleMessage(request, sender, sendResponse) {
   if (request.message === "readCookie") {
     const cookies = await getCookie(request.payload);
     return Promise.resolve(
-      { response: `Cookie = ${cookies.value}` });
+      { response: `${cookies.value}` });
   }
   if (request.message === "getExtensionUrl") {
     const url = await getExtensionUrl(request.payload.url);

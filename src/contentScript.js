@@ -5,10 +5,9 @@ import { generateUI } from './UI.js';
 let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
+const PREISDETEKTIV_API = 'http://localhost:5173/api/product'
 let marketObjectsArray = [];
 
-
-// Load needed data from the page
 
 function loadExpertTokens() {
   const pageTitle = document.head.getElementsByTagName('title')[0].textContent;
@@ -19,6 +18,7 @@ function loadExpertTokens() {
     const article_id = element.getAttribute('data-article-id');
     const producturl = document.location.href.split('?')[0];
     const product = pageTitle.split(' -')[0]
+    const webcode = document.getElementsByClassName("widget-ArticleNumber-text")[0].innerText.split(" ")[1]
 
     const expertTokens = {
       cart_id,
@@ -26,6 +26,7 @@ function loadExpertTokens() {
       article_id,
       producturl,
       product,
+      webcode,
     }
 
     browser.storage.local.set(expertTokens, () => {
@@ -34,9 +35,22 @@ function loadExpertTokens() {
   }
 }
 
-// Create PreisDetektiv Button on Product Page
+async function setLocalStorage(token) {
+  browser.storage.local.set({ token }, () => {
+  })
+}
+
+exportFunction(setLocalStorage, window, { defineAs: 'setLocalStorage' });
 
 async function addPreisDetektivToSite() {
+  const url = new URL(document.location.href);
+  const branchId = url.searchParams.get("branch_id");
+  if (!branchId) {
+    if (!(await notifyBackgroundPage('readCookie') === 'e_14184028')) {
+      await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
+      location.reload();
+    }
+  }
   const script = document.createElement("script");
   script.src = "https://www.google.com/recaptcha/api.js?render=6LdjgBokAAAAADvZloidoTl7v_5-EUKhz3vp8TMU";
   document.head.appendChild(script);
@@ -45,9 +59,9 @@ async function addPreisDetektivToSite() {
   document.body.appendChild(rootOverlay);
 
   //REF_LINK = await fetchCashback();
-  //console.log(await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' }));
   await fetchInteface();
   reloadTable();
+  loadExpertTokens();
 }
 
 /// Button Logic
@@ -55,44 +69,29 @@ async function fetchInteface() {
   const path = await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' })
   const response = await fetch(path.url);
   const html = await response.text();
-  // fetch the html and add it to the page
   document.getElementById('rootOverlay').innerHTML = html;
-  // add the event listeners
-  generateUI();
-
-  // Add the captcha script
   const captchaPath = await notifyBackgroundPage('getExtensionUrl', { url: 'recaptcha.js' })
   const script = document.createElement("script");
   script.src = captchaPath.url;
   document.head.appendChild(script);
+  generateUI();
 }
 
 async function bestpreisButton() {
-  //setDisplay('bestpreis-overlay', 'block');
-  // Send Runtime message to background.js to get the csrf_token
-  console.log('Button clicked');
-  //removeResults();
-  //setDisplay('counter', 'block');
-  //setDisplay('rootOverlay', 'block');
-  //getExpertPrice();
+  removeResults();
+  getExpertPrice();
 }
 
 exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 
 function removeResults() {
+
   try {
-    document.getElementById('resultTable').remove();
+    document.getElementById('resultsTable').remove();
   } catch (error) {
     console.log('No table to remove');
   }
 }
-
-function overlayButton() {
-  setDisplay('rootOverlay', 'none');
-  setDisplay('counter', 'none');
-}
-
-// Reload Results if available
 
 async function reloadTable() {
   let storage = await browser.storage.local.get(['lastSearch']);
@@ -103,38 +102,22 @@ async function reloadTable() {
   }
 }
 
-
-// Create Table with Results
-
 function createListForResults(sortedResults) {
-  let listData = sortedResults
-  let mainDiv = document.createElement('div')
-  mainDiv.id = 'resultTable'
-  const resultContainer = document.getElementById('resultContainer');
-  resultContainer.appendChild(mainDiv);
-  for (const entry in listData) {
-    // Create new Elements
-    const priceDiv = document.createElement('div')
-    const marketDiv = document.createElement('div')
-    const urlDiv = document.createElement('div')
-    const href = document.createElement('a')
-
-    //append div to mainDiv 
-    mainDiv.appendChild(priceDiv)
-    mainDiv.appendChild(marketDiv)
-    mainDiv.appendChild(urlDiv)
-    urlDiv.appendChild(href)
-
-    //Add Data to Elements
-    priceDiv.textContent = listData[entry].price + "€";
-    marketDiv.textContent = listData[entry].market;
-    href.href = `${listData[entry].url}&${REF_LINK}`;
-    href.textContent = "LINK*"
-    href.setAttribute("target", "_blank");
+  const resultsWrapper = document.getElementById('resultsWrapper');
+  const results = document.createElement('div');
+  results.id = 'resultsTable'
+  results.classList.add('grid', 'grid-cols-1', 'auto-cols-auto', 'place-content-start', 'place-items-center', 'gap-8', 'p-4', 'm-4');
+  resultsWrapper.appendChild(results);
+  for (const entry in sortedResults) {
+    results.insertAdjacentHTML('afterbegin',
+      `<div class="results w-full bg-gray-900 rounded-lg max-w-5xl">
+    <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
+      <div>${sortedResults[entry].market}</div>
+      <a target="_blank" href="${sortedResults[entry].url}&${REF_LINK}" class="btn btn-block text-2xl h-20">${sortedResults[entry].price}€*</a>
+    </div>
+  </div>`);
   }
 }
-
-// Get the needed Data from storage
 
 async function getStorageData() {
   const data = await browser.storage.local.get(
@@ -144,9 +127,15 @@ async function getStorageData() {
       'article_id',
       'csrf_token',
       'producturl',
-      'product'
+      'product',
+      'webcode',
     ]
   )
+  return data;
+}
+
+async function getStoragebyId(id) {
+  const data = await browser.storage.local.get(id);
   return data;
 }
 
@@ -173,8 +162,10 @@ async function getExpertPrice(branch_id = 0) {
   if (branch_id != 0) {
     const marketobj = await makeApiRequest(requestData);
     console.log(marketobj);
+    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
   } else {
     getAllBranches(requestData);
+    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
   };
 };
 
@@ -192,7 +183,8 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   }
 }
 
-async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id, csrf_token, article_id, producturl }) {
+async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0,
+  cart_id, csrf_token, article_id, producturl }) {
   let requestData = {
     cart_id,
     article_id,
@@ -200,6 +192,7 @@ async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0, cart_id
     producturl,
   };
   const allRoots = Object.keys(branches)
+  setProgessbar((rootidx / allRoots.length) * 100)
   if (rootidx <= allRoots.length - 1) {
     const rootName = Object.keys(branches)[rootidx]
     if (branchidx <= branches[rootName].length - 1) {
@@ -260,7 +253,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branch_id}`, exdays: 2555, hostOnly: 1 });
     await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
     const response = await content.fetch(BASKET_ENDPOINT, requestOptions);
-    //console.log(`document.cookie: ${getCookie("fmarktcookie")}`);
+    //console.log(`document.cookie: ${ getCookie("fmarktcookie") }`);
     let responsetojson = await response.json();
     if (!response.ok) {
       responsetojson['status'] = response.status
@@ -290,7 +283,6 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
     return apiResponse;
 
   } catch (error) {
-    console.log(error);
     const errorResponse = {
       branch_id,
       price: 'no price',
@@ -365,7 +357,7 @@ async function sortAndPush(resolvedMarketObjects) {
       `Markets with no price = ${noPrices.length},
       Markets with Price = ${withPrices.length}, 
       Failed Markets = ${wrongmarkets.length},
-      Total = ${noPrices.length + withPrices.length + wrongmarkets.length}`
+    Total = ${noPrices.length + withPrices.length + wrongmarkets.length} `
     );
 
     sortedprices = withPrices.sort(function (a, b) {
@@ -374,36 +366,64 @@ async function sortAndPush(resolvedMarketObjects) {
 
 
     let counter = 0;
-    for (const links in sortedprices) {
+    for (const key in sortedprices) {
       if (counter == 20) {
         break;
       } else {
         returnprices.push({
-          branch_id: sortedprices[links].branch_id,
-          price: sortedprices[links].price,
-          market: sortedprices[links].market,
-          url: sortedprices[links].url,
+          price: sortedprices[key].price,
+          branchName: sortedprices[key].market,
+          branchId: parseInt(sortedprices[key].branch_id),
         });
         counter += 1;
       }
     }
 
-    createListForResults(returnprices);
-    browser.storage.local.set({ lastSearch: returnprices }, () => {
-      console.log('lastSearch: ' + JSON.stringify(returnprices));
+    // Create an event when the search is finished
+
+    const webcode = (await getStoragebyId('webcode')).webcode;
+    const url = (await getStoragebyId('producturl')).producturl;
+
+    let searchResult = {
+      webcode: `${webcode}`,
+      url,
+      price: returnprices,
+    };
+
+    browser.storage.local.set({ searchResult }, () => {
+      console.log(JSON.stringify(searchResult));
     })
+
+    const event = new CustomEvent('searchFinished', {});
+    document.getElementById('resultsWrapper').dispatchEvent(event);
+    createListForResults(searchResult);
   } catch (error) {
     console.error('Oops! Something went wrong while sorting prices', error);
   }
 }
 
 
+async function pushResultsToAPI(token) {
+  const searchResult = (await getStoragebyId('searchResult')).searchResult;
+
+  searchResult['verify'] = token;
+  delete searchResult['url'];
+
+  let requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(searchResult),
+  };
+  const response = await content.fetch(PREISDETEKTIV_API, requestOptions);
+  console.log(response);
+}
+
+exportFunction(pushResultsToAPI, window, { defineAs: 'pushResultsToAPI' });
+
 /// Helper Functions
 
 function setProgessbar(value) {
-  const progressValue = document.querySelector('.Progressbar__value');
-  const progress = document.querySelector('progress');
-  progressValue.style.width = `${value}%`;
+  const progress = document.getElementById('progressBar');
   progress.value = value;
 }
 
@@ -419,6 +439,4 @@ const sleep = (milliseconds) => {
 
 /// Start
 
-loadExpertTokens();
 addPreisDetektivToSite();
-
