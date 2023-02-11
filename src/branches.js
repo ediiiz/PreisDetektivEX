@@ -1,11 +1,4 @@
 export const branches = {
-  'expert Onlineshop':
-    [{
-      id: 2879130,
-      name: 'expert Onlineshop',
-      city: 'Online',
-      zip: '17389'
-    }],
   'expert Bening':
     [{
       id: 14184028,
@@ -2023,6 +2016,13 @@ export const branches = {
       id: 1907524,
       name: 'expert Grützmann',
       city: 'Anklam',
+      zip: '17389'
+    }],
+  'expert Onlineshop':
+    [{
+      id: 2879130,
+      name: 'expert Onlineshop',
+      city: 'Online',
       zip: '17389'
     }],
 }

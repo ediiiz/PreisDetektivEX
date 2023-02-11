@@ -1,30 +1,30 @@
 import { branches } from './branches.js';
 import { fetchCashback } from './affiliate.js';
-import { setCookie, getCookie, notifyBackgroundPage } from './helper.js';
+import { setCookie, getCookie, notifyBackgroundPage, setProgessbar, getStorageData, getStoragebyId } from './helper.js';
 import { generateUI } from './UI.js';
 let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
-const PREISDETEKTIV_API = 'http://localhost:5173/api/product'
-let marketObjectsArray = [];
+const PREISDETEKTIV_API = 'https://preisdetektiv.lumalala.de/api/product'
+const priceListEntries = [];
 
 
 function loadExpertTokens() {
   const pageTitle = document.head.getElementsByTagName('title')[0].textContent;
   if (pageTitle.match("bei expert kaufen")) {
-    const csrf_token = document.head.querySelector('meta').getAttribute('content')
+    const csrfToken = document.head.querySelector('meta').getAttribute('content')
     const element = document.querySelector('div.widget-ArticleStatus');
-    const cart_id = element.getAttribute('data-cart-id');
-    const article_id = element.getAttribute('data-article-id');
-    const producturl = document.location.href.split('?')[0];
+    const cartId = element.getAttribute('data-cart-id');
+    const articleId = element.getAttribute('data-article-id');
+    const productUrl = document.location.href.split('?')[0];
     const product = pageTitle.split(' -')[0]
     const webcode = document.getElementsByClassName("widget-ArticleNumber-text")[0].innerText.split(" ")[1]
 
     const expertTokens = {
-      cart_id,
-      csrf_token,
-      article_id,
-      producturl,
+      cartId,
+      csrfToken,
+      articleId,
+      productUrl,
       product,
       webcode,
     }
@@ -34,13 +34,6 @@ function loadExpertTokens() {
 
   }
 }
-
-async function setLocalStorage(token) {
-  browser.storage.local.set({ token }, () => {
-  })
-}
-
-exportFunction(setLocalStorage, window, { defineAs: 'setLocalStorage' });
 
 async function addPreisDetektivToSite() {
   const url = new URL(document.location.href);
@@ -85,7 +78,6 @@ async function bestpreisButton() {
 exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 
 function removeResults() {
-
   try {
     document.getElementById('resultsTable').remove();
   } catch (error) {
@@ -96,85 +88,69 @@ function removeResults() {
 async function reloadTable() {
   let storage = await browser.storage.local.get(['lastSearch']);
   if (storage.length != 0) {
-    createListForResults(storage.lastSearch);
+    //createListForResults(storage.lastSearch);
   } else {
-    console.log('No lastSearch found');
+    console.log('No last Search found');
   }
 }
 
-function createListForResults(sortedResults) {
+
+
+function addEntryToUI(marketObject) {
   const resultsWrapper = document.getElementById('resultsWrapper');
-  const results = document.createElement('div');
-  results.id = 'resultsTable'
-  results.classList.add('grid', 'grid-cols-1', 'auto-cols-auto', 'place-content-start', 'place-items-center', 'gap-8', 'p-4', 'm-4');
-  resultsWrapper.appendChild(results);
-  for (const entry in sortedResults) {
-    results.insertAdjacentHTML('afterbegin',
-      `<div class="results w-full bg-gray-900 rounded-lg max-w-5xl">
-    <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
-      <div>${sortedResults[entry].market}</div>
-      <a target="_blank" href="${sortedResults[entry].url}&${REF_LINK}" class="btn btn-block text-2xl h-20">${sortedResults[entry].price}€*</a>
-    </div>
-  </div>`);
+  let resultsTable = document.getElementById('resultsTable');
+  // check if results already exists if not create it
+  if (!resultsTable) {
+    const results = document.createElement('div');
+    results.id = 'resultsTable'
+    results.classList.add('grid', 'grid-cols-1', 'auto-cols-auto', 'place-content-start', 'place-items-center', 'gap-8', 'p-4', 'm-4');
+    resultsWrapper.appendChild(results);
+    resultsTable = document.getElementById('resultsTable');
   }
+
+  priceListEntries.push({
+    price: marketObject.price,
+    html: `<div class="results w-full bg-gray-900 rounded-lg max-w-5xl">
+      <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
+        <div>${marketObject.market}</div>
+        <a target="_blank" href="${marketObject.url}&${REF_LINK}" class="btn btn-block text-2xl h-20">${marketObject.price}€*</a>
+      </div>
+    </div>`
+  });
+
+  priceListEntries.sort((a, b) => a.price - b.price);
+
+  resultsTable.innerHTML = priceListEntries.map(entry => entry.html).join('');
 }
 
-async function getStorageData() {
-  const data = await browser.storage.local.get(
-    [
-      'session',
-      'cart_id',
-      'article_id',
-      'csrf_token',
-      'producturl',
-      'product',
-      'webcode',
-    ]
-  )
-  return data;
-}
 
-async function getStoragebyId(id) {
-  const data = await browser.storage.local.get(id);
-  return data;
-}
 
-// Logic if single request is made or if every market is checked
-// if branch_id is set, only one market is checked
-// if branch_id is not set, all markets are checked
-
-async function getExpertPrice(branch_id = 0) {
+async function getExpertPrice(branchId = 0) {
   const requestData = await getStorageData()
-
-  // Destructure data
   const {
-    cart_id,
-    csrf_token,
-    article_id,
+    cartId,
+    csrfToken,
+    articleId,
   } = requestData;
 
-  requestData['branch_id'] = branch_id;
+  requestData['branch_id'] = branchId;
 
-  if (article_id === '' && cart_id === '' && csrf_token === '') {
+  if (articleId === '' && cartId === '' && csrfToken === '') {
     throw new Error('Oops! Static Data is empty, cant continue');
   };
 
-  if (branch_id != 0) {
+  if (branchId != 0) {
     const marketobj = await makeApiRequest(requestData);
-    console.log(marketobj);
-    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
   } else {
-    getAllBranches(requestData);
-    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
+    const resolvedMarkets = await getAllBranches(requestData);
+    sortAndPush(resolvedMarkets);
   };
 };
 
-async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
+async function getAllBranches({ cartId, csrfToken, articleId, productUrl }) {
   try {
-    marketObjectsArray = [];
-    await getNextMarket({ cart_id, csrf_token, article_id, producturl })
-    const resolvedMarketObjects = await Promise.all(marketObjectsArray);
-    sortAndPush(resolvedMarketObjects);
+    const resolvedMarkets = await getMarkets({ cartId, csrfToken, articleId, productUrl })
+    return resolvedMarkets;
   } catch (error) {
     console.error(
       'Oops! Something went wrong while getting all Branches',
@@ -183,97 +159,87 @@ async function getAllBranches({ cart_id, csrf_token, article_id, producturl }) {
   }
 }
 
-async function getNextMarket({ status = 200, rootidx = 0, branchidx = 0,
-  cart_id, csrf_token, article_id, producturl }) {
-  let requestData = {
-    cart_id,
-    article_id,
-    csrf_token,
-    producturl,
-  };
-  const allRoots = Object.keys(branches)
-  setProgessbar((rootidx / allRoots.length) * 100)
-  if (rootidx <= allRoots.length - 1) {
-    const rootName = Object.keys(branches)[rootidx]
-    if (branchidx <= branches[rootName].length - 1) {
-      const branchName = branches[rootName][branchidx]
-      requestData = { ...requestData, name: branchName.name, branch_id: branchName.id, city: branchName.city };
-      const marketObject = await makeApiRequest(requestData);
+async function getMarkets({ status = 200, cartId, csrfToken, articleId, productUrl }) {
+  const marketObjectsArray = [];
+  const roots = Object.keys(branches);
+
+  for (let rootIndex = 0; rootIndex < roots.length; rootIndex++) {
+    setProgessbar((rootIndex / roots.length) * 100);
+    const root = roots[rootIndex];
+    const branchesForRoot = branches[root];
+
+    for (let branchIndex = 0; branchIndex < branchesForRoot.length; branchIndex++) {
+      const branch = branchesForRoot[branchIndex];
+      const marketData = {
+        cartId,
+        articleId,
+        csrfToken,
+        productUrl,
+        name: branch.name,
+        branchId: branch.id,
+        city: branch.city
+      };
+      const marketObject = await makeApiRequest(marketData);
       marketObjectsArray.push(marketObject);
-      marketObject.status = status;
-
-      if (status > 400) {
-        ++branchidx
-        await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
-
-      } else {
-        ++rootidx
-        branchidx = 0
-        await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
-
+      if (marketObject.status <= 400) {
+        addEntryToUI(marketObject);
+        break;
       }
-    } else {
-      ++rootidx
-      branchidx = 0
-      await getNextMarket({ status, rootidx, branchidx, cart_id, csrf_token, article_id, producturl })
-
     }
-  } else {
-    console.log("Final Market");
   }
+  console.log("All Markets Processed");
+  return marketObjectsArray;
 }
 
-async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, producturl, city }) {
-  const url = `${producturl}?branch_id=${branch_id}&gclid=0`;
+async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productUrl, city }) {
+  const url = `${productUrl}?branch_id=${branchId}&gclid=0`;
 
-  let myHeaders = {
+  let headers = {
+    "csrf-token": csrfToken,
+    "content-type": "application/json; charset=utf-8",
     "accept": "application/json, text/javascript, */*; q=0.01",
-    "accept-language": "en-DE,en;q=0.9,de-DE;q=0.8,de;q=0.7,en-US;q=0.6",
-    "content-type": "application/json; charset=UTF-8",
-    "csrf-token": `${csrf_token}`,
+    "X-Requested-With": "XMLHttpRequest",
+    "TE": "trailers",
   }
 
   let obj = {
-    shoppingCartId: cart_id,
+    shoppingCartId: cartId,
     quantity: "1",
-    article: article_id,
+    article: articleId,
   }
-
-  let raw = JSON.stringify(obj);
 
   let requestOptions = {
     method: 'POST',
-    headers: myHeaders,
-    body: raw,
+    headers: headers,
+    body: JSON.stringify(obj),
     redirect: 'follow',
     credentials: 'same-origin',
   };
 
   try {
-    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branch_id}`, exdays: 2555, hostOnly: 1 });
-    await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branch_id}`, exdays: 2555 });
+    await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branchId}`, exdays: 2555, hostOnly: 1 });
+    await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branchId}`, exdays: 2555 });
     const response = await content.fetch(BASKET_ENDPOINT, requestOptions);
-    //console.log(`document.cookie: ${ getCookie("fmarktcookie") }`);
-    let responsetojson = await response.json();
+    let bodyData = await response.json();
     if (!response.ok) {
-      responsetojson['status'] = response.status
-      throw responsetojson;
+      bodyData['status'] = response.status
+      throw bodyData;
     }
 
 
-    const item = await responsetojson.shoppingCart?.itemList.items[0] || '';
+    const item = await bodyData.shoppingCart?.itemList.items[0] || '';
     if (item != '') {
       if (item.quantity) {
-        await resetCart(item.id, cart_id, csrf_token)
+        await resetCart(item.id, cartId, csrfToken)
       }
     }
 
-    const price = await responsetojson.shoppingCart?.lastAdded.price.gross || '';
+    const price = await bodyData.shoppingCart?.lastAdded.price.gross || '';
 
     document.getElementById('currentMarket').textContent = `${city}: ${price}€`;
 
     const apiResponse = {
-      branch_id,
+      branch_id: branchId,
       price,
       market: city,
       url,
@@ -284,7 +250,7 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 
   } catch (error) {
     const errorResponse = {
-      branch_id,
+      branch_id: branchId,
       price: 'no price',
       market: city,
       url,
@@ -297,11 +263,12 @@ async function makeApiRequest({ cart_id, csrf_token, article_id, branch_id, prod
 }
 
 async function resetCart(item_id, cart_id, csrf_token) {
-  let myHeaders = {
+  let headers = {
+    "csrf-token": csrf_token,
+    "content-type": "application/json; charset=utf-8",
     "accept": "application/json, text/javascript, */*; q=0.01",
-    "accept-language": "en-DE,en;q=0.9,de-DE;q=0.8,de;q=0.7,en-US;q=0.6",
-    "content-type": "application/json; charset=UTF-8",
-    "csrf-token": `${csrf_token}`,
+    "X-Requested-With": "XMLHttpRequest",
+    "TE": "trailers",
   }
 
   let obj = {
@@ -309,22 +276,21 @@ async function resetCart(item_id, cart_id, csrf_token) {
     quantity: 0,
     shoppingCartId: cart_id,
   }
-  let raw = JSON.stringify(obj);
 
   let requestOptions = {
     method: 'POST',
-    headers: myHeaders,
-    body: raw,
+    headers: headers,
+    body: JSON.stringify(obj),
     redirect: 'follow',
     credentials: 'same-origin',
   };
 
   try {
     const response = await content.fetch(MODIFY_QUANTITY, requestOptions);
-    let responsetojson = await response.json() || '';
+    let bodyData = await response.json() || '';
     if (!response.ok) {
-      responsetojson['status'] = response.status
-      throw responsetojson;
+      bodyData['status'] = response.status
+      throw bodyData;
 
     } else {
       return
@@ -382,7 +348,7 @@ async function sortAndPush(resolvedMarketObjects) {
     // Create an event when the search is finished
 
     const webcode = (await getStoragebyId('webcode')).webcode;
-    const url = (await getStoragebyId('producturl')).producturl;
+    const url = (await getStoragebyId('productUrl')).productUrl;
 
     let searchResult = {
       webcode: `${webcode}`,
@@ -390,13 +356,10 @@ async function sortAndPush(resolvedMarketObjects) {
       price: returnprices,
     };
 
-    browser.storage.local.set({ searchResult }, () => {
-      console.log(JSON.stringify(searchResult));
-    })
+    browser.storage.local.set({ searchResult }, () => { console.log(searchResult) })
 
     const event = new CustomEvent('searchFinished', {});
     document.getElementById('resultsWrapper').dispatchEvent(event);
-    createListForResults(searchResult);
   } catch (error) {
     console.error('Oops! Something went wrong while sorting prices', error);
   }
@@ -414,28 +377,11 @@ async function pushResultsToAPI(token) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(searchResult),
   };
-  const response = await content.fetch(PREISDETEKTIV_API, requestOptions);
-  console.log(response);
+
+  content.fetch(PREISDETEKTIV_API, requestOptions);
 }
 
 exportFunction(pushResultsToAPI, window, { defineAs: 'pushResultsToAPI' });
-
-/// Helper Functions
-
-function setProgessbar(value) {
-  const progress = document.getElementById('progressBar');
-  progress.value = value;
-}
-
-function setDisplay(Id, attr) {
-  document.getElementById(Id).style.display = attr;
-}
-
-const sleep = (milliseconds) => {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-};
-
-
 
 /// Start
 

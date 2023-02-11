@@ -12,6 +12,6 @@ button.addEventListener('click', function (e) {
   bestpreisButton();
 });
 
-document.getElementById("resultsWrapper").addEventListener("searchFinished", (event) => {
+document.getElementById("resultsWrapper").addEventListener("searchFinished", () => {
   checkRecaptcha();
 });

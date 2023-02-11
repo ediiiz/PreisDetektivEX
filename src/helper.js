@@ -87,5 +87,39 @@ async function generateCookieObject({ CookieObjects, headers }) {
   return headers;
 }
 
+function setProgessbar(value) {
+  const progress = document.getElementById('progressBar');
+  progress.value = value;
+}
+function setDisplay(Id, attr) {
+  document.getElementById(Id).style.display = attr;
+}
+const sleep = (milliseconds) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};
 
-export { getCookie, setCookie, notifyBackgroundPage, parseAllCookies, generateCookieObject };
+async function getStoragebyId(id) {
+  const data = await browser.storage.local.get(id);
+  return data;
+}
+
+async function getStorageData() {
+  const data = await browser.storage.local.get(
+    [
+      'session',
+      'cartId',
+      'articleId',
+      'csrfToken',
+      'productUrl',
+      'product',
+      'webcode',
+    ]
+  )
+  return data;
+}
+
+
+export { getCookie, setCookie, notifyBackgroundPage, parseAllCookies, generateCookieObject, setDisplay, sleep, setProgessbar, getStoragebyId, getStorageData };
+
+
+
