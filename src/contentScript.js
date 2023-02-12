@@ -1,81 +1,93 @@
 import { branches } from './branches.js';
 import { fetchCashback } from './affiliate.js';
-import { setCookie, getCookie, notifyBackgroundPage, setProgessbar, getStorageData, getStoragebyId } from './helper.js';
+import { notifyBackgroundPage, setProgessbar, getStoragebyId } from './helper.js';
 import { generateUI } from './UI.js';
 let REF_LINK;
 const BASKET_ENDPOINT = `https://www.expert.de/_api/shoppingcart/addItem`;
 const MODIFY_QUANTITY = `https://www.expert.de/_api/shoppingcart/modifyItemQuantity`;
 const PREISDETEKTIV_API = 'https://preisdetektiv.lumalala.de/api/product'
+const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api.js?render=6LdjgBokAAAAADvZloidoTl7v_5-EUKhz3vp8TMU'
 const priceListEntries = [];
 
+let expertTokens = {};
 
-function loadExpertTokens() {
-  const pageTitle = document.head.getElementsByTagName('title')[0].textContent;
-  if (pageTitle.match("bei expert kaufen")) {
-    const csrfToken = document.head.querySelector('meta').getAttribute('content')
-    const element = document.querySelector('div.widget-ArticleStatus');
-    const cartId = element.getAttribute('data-cart-id');
-    const articleId = element.getAttribute('data-article-id');
-    const productUrl = document.location.href.split('?')[0];
-    const product = pageTitle.split(' -')[0]
-    const webcode = document.getElementsByClassName("widget-ArticleNumber-text")[0].innerText.split(" ")[1]
-
-    const expertTokens = {
-      cartId,
-      csrfToken,
-      articleId,
-      productUrl,
-      product,
-      webcode,
-    }
-
-    browser.storage.local.set(expertTokens, () => {
-    })
-
+async function bestpreisButton() {
+  removeResults();
+  if (await loadExpertTokens()) {
+    getExpertPrice();
+  } else {
+    console.log('No expert tokens found');
   }
+}
+
+async function loadExpertTokens() {
+  const pageTitle = document.head.querySelector('title').textContent;
+  if (!pageTitle.includes("bei expert kaufen")) {
+    return false;
+  }
+
+  const element = document.querySelector('div.widget-ArticleStatus');
+
+  expertTokens = {
+    product: pageTitle.split(' -')[0],
+    cartId: element.getAttribute('data-cart-id'),
+    articleId: element.getAttribute('data-article-id'),
+    csrfToken: document.head.querySelector('meta[content]').getAttribute('content'),
+    productUrl: document.location.href.split('?')[0],
+    webcode: document.querySelector(".widget-ArticleNumber-text").textContent.split(" ")[2],
+  };
+
+  return Boolean(expertTokens.cartId);
 }
 
 async function addPreisDetektivToSite() {
   const url = new URL(document.location.href);
   const branchId = url.searchParams.get("branch_id");
+
+  // Check if branch ID exists in the URL
   if (!branchId) {
-    if (!(await notifyBackgroundPage('readCookie') === 'e_14184028')) {
-      await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_14184028`, exdays: 2555, hostOnly: 1 });
+    // Check if cookie `e_14184028` exists
+    const cookieExists = await notifyBackgroundPage('readCookie') === 'e_14184028';
+    if (!cookieExists) {
+      // Set cookie `e_14184028`
+      await notifyBackgroundPage('switchCookie', {
+        name: 'fmarktcookie',
+        url: 'expert.de',
+        value: `e_14184028`,
+        exdays: 2555,
+        hostOnly: 1
+      });
       location.reload();
     }
   }
-  const script = document.createElement("script");
-  script.src = "https://www.google.com/recaptcha/api.js?render=6LdjgBokAAAAADvZloidoTl7v_5-EUKhz3vp8TMU";
-  document.head.appendChild(script);
+
+  // Load the Google Recaptcha script
+  const recaptchaScript = document.createElement("script");
+  recaptchaScript.src = RECAPTCHA_URL;
+  document.head.appendChild(recaptchaScript);
+
+  // Create an element to hold the interface
   const rootOverlay = document.createElement('div');
   rootOverlay.id = 'rootOverlay';
   document.body.appendChild(rootOverlay);
 
-  //REF_LINK = await fetchCashback();
+  // Load the interface
   await fetchInteface();
   reloadTable();
-  loadExpertTokens();
 }
 
-/// Button Logic
 async function fetchInteface() {
-  const path = await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' })
-  const response = await fetch(path.url);
-  const html = await response.text();
+  const path = await notifyBackgroundPage('getExtensionUrl', { url: 'preisdetektiv.html' });
+  const html = await (await fetch(path.url)).text();
   document.getElementById('rootOverlay').innerHTML = html;
-  const captchaPath = await notifyBackgroundPage('getExtensionUrl', { url: 'recaptcha.js' })
+
+  const captchaPath = await notifyBackgroundPage('getExtensionUrl', { url: 'recaptcha.js' });
   const script = document.createElement("script");
   script.src = captchaPath.url;
   document.head.appendChild(script);
+
   generateUI();
 }
-
-async function bestpreisButton() {
-  removeResults();
-  getExpertPrice();
-}
-
-exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 
 function removeResults() {
   try {
@@ -109,6 +121,9 @@ function addEntryToUI(marketObject) {
   }
 
   priceListEntries.push({
+    market: marketObject.market,
+    webcode: marketObject.webcode,
+    url: marketObject.url,
     price: marketObject.price,
     html: `<div class="results w-full bg-gray-900 rounded-lg max-w-5xl">
       <div class="p-8 text-2xl flex flex-col place-items-center gap-4">
@@ -126,40 +141,25 @@ function addEntryToUI(marketObject) {
 
 
 async function getExpertPrice(branchId = 0) {
-  const requestData = await getStorageData()
   const {
     cartId,
     csrfToken,
     articleId,
-  } = requestData;
+  } = expertTokens;
 
-  requestData['branch_id'] = branchId;
+  if (!cartId || !csrfToken || !articleId) {
+    throw new Error('Static Data is missing, cannot continue');
+  }
 
-  if (articleId === '' && cartId === '' && csrfToken === '') {
-    throw new Error('Oops! Static Data is empty, cant continue');
-  };
-
-  if (branchId != 0) {
-    const marketobj = await makeApiRequest(requestData);
+  if (branchId === 0) {
+    const allMarkets = (await getMarkets(expertTokens));
+    sortAndPush(allMarkets);
   } else {
-    const resolvedMarkets = await getAllBranches(requestData);
-    sortAndPush(resolvedMarkets);
-  };
-};
-
-async function getAllBranches({ cartId, csrfToken, articleId, productUrl }) {
-  try {
-    const resolvedMarkets = await getMarkets({ cartId, csrfToken, articleId, productUrl })
-    return resolvedMarkets;
-  } catch (error) {
-    console.error(
-      'Oops! Something went wrong while getting all Branches',
-      error
-    );
+    const market = await makeApiRequest({ ...expertTokens, branchId });
   }
 }
 
-async function getMarkets({ status = 200, cartId, csrfToken, articleId, productUrl }) {
+async function getMarkets({ cartId, csrfToken, articleId, productUrl, webcode }) {
   const marketObjectsArray = [];
   const roots = Object.keys(branches);
 
@@ -171,6 +171,7 @@ async function getMarkets({ status = 200, cartId, csrfToken, articleId, productU
     for (let branchIndex = 0; branchIndex < branchesForRoot.length; branchIndex++) {
       const branch = branchesForRoot[branchIndex];
       const marketData = {
+        webcode,
         cartId,
         articleId,
         csrfToken,
@@ -191,7 +192,7 @@ async function getMarkets({ status = 200, cartId, csrfToken, articleId, productU
   return marketObjectsArray;
 }
 
-async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productUrl, city }) {
+async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productUrl, city, webcode }) {
   const url = `${productUrl}?branch_id=${branchId}&gclid=0`;
 
   let headers = {
@@ -218,7 +219,6 @@ async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productU
 
   try {
     await notifyBackgroundPage('switchCookie', { name: 'fmarktcookie', url: 'expert.de', value: `e_${branchId}`, exdays: 2555, hostOnly: 1 });
-    await setCookie({ cname: 'fmarktcookie', cvalue: `e_${branchId}`, exdays: 2555 });
     const response = await content.fetch(BASKET_ENDPOINT, requestOptions);
     let bodyData = await response.json();
     if (!response.ok) {
@@ -239,7 +239,8 @@ async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productU
     document.getElementById('currentMarket').textContent = `${city}: ${price}€`;
 
     const apiResponse = {
-      branch_id: branchId,
+      webcode,
+      branchId,
       price,
       market: city,
       url,
@@ -250,7 +251,8 @@ async function makeApiRequest({ cartId, csrfToken, articleId, branchId, productU
 
   } catch (error) {
     const errorResponse = {
-      branch_id: branchId,
+      webcode,
+      branchId,
       price: 'no price',
       market: city,
       url,
@@ -302,69 +304,52 @@ async function resetCart(item_id, cart_id, csrf_token) {
 
 async function sortAndPush(resolvedMarketObjects) {
   try {
-    let returnprices = [];
-    let sortedprices = [];
-    let withPrices = [];
-    let noPrices = [];
-    let wrongmarkets = [];
-    for (const market of resolvedMarketObjects) {
+    const withPrices = [];
+    const noPrices = [];
+    const wrongMarkets = [];
+
+    resolvedMarketObjects.forEach(market => {
       if (market.price === 'no price') {
         if (market.namespace === undefined) {
-          wrongmarkets.push(market);
+          wrongMarkets.push(market);
         } else {
           noPrices.push(market);
         }
       } else {
         withPrices.push(market);
       }
-    }
-
-    console.log(
-      `Markets with no price = ${noPrices.length},
-      Markets with Price = ${withPrices.length}, 
-      Failed Markets = ${wrongmarkets.length},
-    Total = ${noPrices.length + withPrices.length + wrongmarkets.length} `
-    );
-
-    sortedprices = withPrices.sort(function (a, b) {
-      return a.price - b.price;
     });
 
+    console.log(
+      `Markets with no price: ${noPrices.length}\n
+      Markets with price: ${withPrices.length}\n
+      Failed markets: ${wrongMarkets.length}\n
+      Total: ${noPrices.length + withPrices.length + wrongMarkets.length}`
+    );
 
-    let counter = 0;
-    for (const key in sortedprices) {
-      if (counter == 20) {
-        break;
-      } else {
-        returnprices.push({
-          price: sortedprices[key].price,
-          branchName: sortedprices[key].market,
-          branchId: parseInt(sortedprices[key].branch_id),
-        });
-        counter += 1;
-      }
-    }
+    const returnPrices = withPrices.sort((a, b) => a.price - b.price).slice(0, 20).map(market => ({
+      price: market.price,
+      branchName: market.market,
+      branchId: parseInt(market.branchId),
+    }));;
 
-    // Create an event when the search is finished
+    const { webcode, productUrl } = expertTokens;
 
-    const webcode = (await getStoragebyId('webcode')).webcode;
-    const url = (await getStoragebyId('productUrl')).productUrl;
-
-    let searchResult = {
-      webcode: `${webcode}`,
-      url,
-      price: returnprices,
+    const searchResult = {
+      webcode,
+      url: productUrl,
+      price: returnPrices,
     };
 
-    browser.storage.local.set({ searchResult }, () => { console.log(searchResult) })
+    await browser.storage.local.set({ searchResult });
+    console.log(searchResult);
 
-    const event = new CustomEvent('searchFinished', {});
+    const event = new CustomEvent('searchFinished');
     document.getElementById('resultsWrapper').dispatchEvent(event);
   } catch (error) {
-    console.error('Oops! Something went wrong while sorting prices', error);
+    console.error('An error occurred while sorting prices:', error);
   }
 }
-
 
 async function pushResultsToAPI(token) {
   const searchResult = (await getStoragebyId('searchResult')).searchResult;
@@ -381,6 +366,9 @@ async function pushResultsToAPI(token) {
   content.fetch(PREISDETEKTIV_API, requestOptions);
 }
 
+// Exports
+
+exportFunction(bestpreisButton, window, { defineAs: 'bestpreisButton' });
 exportFunction(pushResultsToAPI, window, { defineAs: 'pushResultsToAPI' });
 
 /// Start
